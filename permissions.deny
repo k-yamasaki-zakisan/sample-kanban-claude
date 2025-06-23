@@ -1,0 +1,224 @@
+# Claude Code Permissions Deny Configuration
+# セキュリティ重視の設定 - 危険な操作を防ぐガードレール
+
+# ====================
+# システム破壊コマンド
+# ====================
+
+# sudoコマンド全般を禁止（システム管理権限の防止）
+Bash(sudo:*)
+
+# 危険な削除コマンドを禁止
+Bash(rm:*)
+Bash(rmdir:*)
+
+# システムファイルの変更を禁止
+Bash(chmod:*)
+Bash(chown:*)
+
+# プロセス操作を制限
+Bash(kill:*)
+Bash(killall:*)
+
+# ====================
+# Git操作の制限
+# ====================
+
+# Gitの危険な操作を禁止（意図しないコミット・プッシュ防止）
+Bash(git push:*)
+Bash(git commit:*)
+Bash(git reset:*)
+Bash(git rebase:*)
+Bash(git merge:*)
+Bash(git branch -D:*)
+Bash(git push --force:*)
+
+# ====================
+# 機密ファイルアクセス禁止
+# ====================
+
+# 環境変数ファイル
+Read(.env)
+Read(.env.*)
+Edit(.env)
+Edit(.env.*)
+Write(.env)
+Write(.env.*)
+
+# SSHキーファイル
+Read(*id_rsa*)
+Read(*id_ed25519*)
+Read(*id_ecdsa*)
+Read(*.pem)
+Edit(*id_rsa*)
+Edit(*id_ed25519*)
+Edit(*id_ecdsa*)
+Edit(*.pem)
+
+# 認証情報・トークンファイル
+Read(*token*)
+Read(*key*)
+Read(*secret*)
+Read(*password*)
+Read(*credential*)
+Edit(*token*)
+Edit(*key*)
+Edit(*secret*)
+Edit(*password*)
+Edit(*credential*)
+
+# AWS・GCP・Azure設定ファイル
+Read(~/.aws/*)
+Read(~/.gcp/*)
+Read(~/.azure/*)
+Edit(~/.aws/*)
+Edit(~/.gcp/*)
+Edit(~/.azure/*)
+
+# Docker・Kubernetes機密情報
+Read(~/.docker/config.json)
+Read(~/.kube/config)
+Edit(~/.docker/config.json)
+Edit(~/.kube/config)
+
+# ====================
+# 外部通信の制限
+# ====================
+
+# HTTP/ネットワークコマンドを禁止
+Bash(curl:*)
+Bash(wget:*)
+Bash(nc:*)
+Bash(netcat:*)
+Bash(telnet:*)
+
+# ====================
+# データベース直接アクセス禁止
+# ====================
+
+# PostgreSQL
+Bash(psql:*)
+Bash(pg_dump:*)
+Bash(pg_restore:*)
+Bash(createdb:*)
+Bash(dropdb:*)
+
+# MySQL
+Bash(mysql:*)
+Bash(mysqldump:*)
+Bash(mysqladmin:*)
+
+# MongoDB
+Bash(mongo:*)
+Bash(mongod:*)
+Bash(mongodump:*)
+Bash(mongorestore:*)
+
+# Redis
+Bash(redis-cli:*)
+Bash(redis-server:*)
+
+# ====================
+# システム情報の保護
+# ====================
+
+# システムパスワードファイル
+Read(/etc/passwd)
+Read(/etc/shadow)
+Read(/etc/hosts)
+Edit(/etc/passwd)
+Edit(/etc/shadow)
+Edit(/etc/hosts)
+
+# システム設定ファイル
+Read(/etc/*)
+Edit(/etc/*)
+Write(/etc/*)
+
+# ====================
+# パッケージ管理の制限
+# ====================
+
+# システムパッケージ管理を禁止
+Bash(apt:*)
+Bash(apt-get:*)
+Bash(yum:*)
+Bash(dnf:*)
+Bash(pacman:*)
+Bash(brew install:*)
+Bash(brew uninstall:*)
+
+# ====================
+# ファイアウォール・セキュリティ
+# ====================
+
+# ファイアウォール設定変更を禁止
+Bash(iptables:*)
+Bash(ufw:*)
+Bash(firewalld:*)
+
+# ====================
+# Docker・コンテナ操作制限
+# ====================
+
+# 危険なDocker操作を制限
+Bash(docker run:*--privileged*)
+Bash(docker run:*-v /:/*)
+Bash(docker exec:*bash*)
+Bash(docker exec:*sh*)
+
+# ====================
+# 開発環境固有の制限
+# ====================
+
+# Node.js - global installを制限
+Bash(npm install -g:*)
+Bash(yarn global add:*)
+
+# Python - システムワイドインストール制限
+Bash(pip install:*--user*)
+Bash(pip3 install:*--user*)
+
+# ====================
+# ログ・履歴の保護
+# ====================
+
+# シェル履歴ファイル
+Read(~/.bash_history)
+Read(~/.zsh_history)
+Edit(~/.bash_history)
+Edit(~/.zsh_history)
+
+# ====================
+# 特定プロジェクトの制限
+# ====================
+
+# production.ymlなど本番設定ファイル
+Read(*production*)
+Read(*prod.*)
+Edit(*production*)
+Edit(*prod.*)
+
+# バックアップファイル
+Read(*.backup)
+Read(*.bak)
+Edit(*.backup)
+Edit(*.bak)
+
+# ====================
+# 補足説明
+# ====================
+
+# このファイルの目的:
+# 1. 意図しないシステム破壊の防止
+# 2. 機密情報の漏洩防止
+# 3. 本番環境への誤操作防止
+# 4. セキュリティインシデントの予防
+
+# 使用方法:
+# このファイルをプロジェクトルートに配置することで、
+# Claude Codeが危険な操作を実行することを防ぎます。
+
+# カスタマイズ:
+# プロジェクトの要件に応じて、必要な権限のみを許可し、
+# 不要な制限は削除してください。

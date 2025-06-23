@@ -1,0 +1,24 @@
+# 本番環境用の設定
+spring:
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/kanban_db}
+    driver-class-name: org.postgresql.Driver
+    username: ${DB_USERNAME:kanban_user}
+    password: ${DB_PASSWORD:kanban_password}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: false
+
+server:
+  port: ${PORT:8080}
+
+logging:
+  level:
+    org.hibernate.SQL: WARN
+    org.hibernate.type.descriptor.sql.BasicBinder: WARN
+    com.example.kanban: INFO

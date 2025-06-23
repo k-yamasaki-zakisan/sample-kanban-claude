@@ -77,13 +77,6 @@ jobs:
         SPRING_PROFILES_ACTIVE: test
       continue-on-error: true
 
-    - name: Generate test report
-      uses: dorny/test-reporter@v1
-      if: success() || failure()
-      with:
-        name: Backend Test Results
-        path: backend/build/test-results/**/*.xml
-        reporter: java-junit
 
     - name: Generate code coverage report
       run: |

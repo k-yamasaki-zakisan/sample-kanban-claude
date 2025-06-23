@@ -1,9 +1,12 @@
 {
   "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
     "react-app",
     "react-app/jest"
   ],
   "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
   "parserOptions": {
     "ecmaVersion": 2020,
     "sourceType": "module",
@@ -30,16 +33,5 @@
     "react": {
       "version": "detect"
     }
-  },
-  "overrides": [
-    {
-      "files": ["*.ts", "*.tsx"],
-      "parser": "@typescript-eslint/parser",
-      "plugins": ["@typescript-eslint"],
-      "extends": [
-        "eslint:recommended",
-        "@typescript-eslint/recommended"
-      ]
-    }
-  ]
+  }
 }

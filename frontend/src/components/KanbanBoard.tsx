@@ -1,8 +1,24 @@
 import React, { useState, useEffect } from 'react';
+import {
+  DndContext,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  useDroppable,
+  DragOverEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { Task, TaskStatus, TaskCreateDto, TaskUpdateDto } from '../types/Task';
 import { taskApi } from '../services/api';
 import TaskCard from './TaskCard';
 import TaskForm from './TaskForm';
+import DroppableColumn from './DroppableColumn';
 import './KanbanBoard.css';
 
 const KanbanBoard: React.FC = () => {
@@ -11,6 +27,15 @@ const KanbanBoard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>();
+  const [activeTask, setActiveTask] = useState<Task | null>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  );
 
   useEffect(() => {
     loadTasks();
@@ -101,59 +126,93 @@ const KanbanBoard: React.FC = () => {
     }
   };
 
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event;
+    const task = tasks.find(task => task.id.toString() === active.id);
+    setActiveTask(task || null);
+  };
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    if (!over) {
+      setActiveTask(null);
+      return;
+    }
+
+    const taskId = parseInt(active.id.toString());
+    const newStatus = over.id as TaskStatus;
+    
+    const task = tasks.find(t => t.id === taskId);
+    if (task && task.status !== newStatus) {
+      await handleUpdateTask(taskId, { status: newStatus });
+    }
+    
+    setActiveTask(null);
+  };
+
   if (loading) {
     return <div className="loading">Loading tasks...</div>;
   }
 
   return (
-    <div className="kanban-board">
-      <header className="kanban-header">
-        <h1>Kanban Board</h1>
-        <button onClick={() => setShowForm(true)} className="btn-add-task">
-          Add New Task
-        </button>
-      </header>
+    <DndContext 
+      sensors={sensors} 
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+    >
+      <div className="kanban-board">
+        <header className="kanban-header">
+          <h1>Kanban Board</h1>
+          <button onClick={() => setShowForm(true)} className="btn-add-task">
+            Add New Task
+          </button>
+        </header>
 
-      {error && (
-        <div className="error-message">
-          {error}
-          <button onClick={() => setError(null)} className="error-close">×</button>
-        </div>
-      )}
-
-      <div className="kanban-columns">
-        {Object.values(TaskStatus).map(status => (
-          <div key={status} className="kanban-column">
-            <div className="column-header">
-              <h2>{getColumnTitle(status)}</h2>
-              <span className="task-count">{getTasksByStatus(status).length}</span>
-            </div>
-            <div className="column-content">
-              {getTasksByStatus(status).map(task => (
-                <TaskCard
-                  key={task.id}
-                  task={task}
-                  onUpdateTask={handleUpdateTask}
-                  onDeleteTask={handleDeleteTask}
-                  onEditTask={handleEditTask}
-                />
-              ))}
-              {getTasksByStatus(status).length === 0 && (
-                <div className="empty-column">No tasks</div>
-              )}
-            </div>
+        {error && (
+          <div className="error-message">
+            {error}
+            <button onClick={() => setError(null)} className="error-close">×</button>
           </div>
-        ))}
-      </div>
+        )}
 
-      {showForm && (
-        <TaskForm
-          task={editingTask}
-          onSubmit={editingTask ? handleEditSubmit : handleCreateTask}
-          onCancel={handleFormCancel}
-        />
-      )}
-    </div>
+        <div className="kanban-columns">
+          {Object.values(TaskStatus).map(status => (
+            <DroppableColumn
+              key={status}
+              status={status}
+              title={getColumnTitle(status)}
+              tasks={getTasksByStatus(status)}
+              onUpdateTask={handleUpdateTask}
+              onDeleteTask={handleDeleteTask}
+              onEditTask={handleEditTask}
+              activeTask={activeTask}
+            />
+          ))}
+        </div>
+
+        <DragOverlay>
+          {activeTask ? (
+            <TaskCard
+              task={activeTask}
+              onUpdateTask={() => {}}
+              onDeleteTask={() => {}}
+              onEditTask={() => {}}
+              isDragging={true}
+              isOverlay={true}
+            />
+          ) : null}
+        </DragOverlay>
+
+        {showForm && (
+          <TaskForm
+            task={editingTask}
+            onSubmit={editingTask ? handleEditSubmit : handleCreateTask}
+            onCancel={handleFormCancel}
+          />
+        )}
+      </div>
+    </DndContext>
   );
 };
 

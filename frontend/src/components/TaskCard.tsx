@@ -1,4 +1,6 @@
 import React from 'react';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { Task, TaskStatus } from '../types/Task';
 import './TaskCard.css';
 
@@ -7,9 +9,33 @@ interface TaskCardProps {
   onUpdateTask: (id: number, updates: { status?: TaskStatus }) => void;
   onDeleteTask: (id: number) => void;
   onEditTask: (task: Task) => void;
+  isDragging?: boolean;
+  isOverlay?: boolean;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ task, onUpdateTask, onDeleteTask, onEditTask }) => {
+const TaskCard: React.FC<TaskCardProps> = ({ 
+  task, 
+  onUpdateTask, 
+  onDeleteTask, 
+  onEditTask, 
+  isDragging = false,
+  isOverlay = false
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging: isSortableDragging,
+  } = useSortable({ id: task.id.toString() });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
   const handleStatusChange = (newStatus: TaskStatus) => {
     onUpdateTask(task.id, { status: newStatus });
   };
@@ -28,7 +54,13 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onUpdateTask, onDeleteTask, o
   };
 
   return (
-    <div className="task-card">
+    <div 
+      ref={setNodeRef}
+      style={style}
+      className={`task-card ${isDragging || isSortableDragging ? 'dragging' : ''} ${isOverlay ? 'overlay' : ''}`}
+      {...attributes}
+      {...listeners}
+    >
       <div className="task-header">
         <h3 className="task-title">{task.title}</h3>
         <div className="task-actions">

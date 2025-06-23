@@ -46,6 +46,8 @@ const TaskCard: React.FC<TaskCardProps> = ({
         return '#e74c3c';
       case TaskStatus.IN_PROGRESS:
         return '#f39c12';
+      case TaskStatus.IN_REVIEW:
+        return '#9b59b6';
       case TaskStatus.DONE:
         return '#27ae60';
       default:
@@ -84,6 +86,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
         >
           <option value={TaskStatus.TODO}>To Do</option>
           <option value={TaskStatus.IN_PROGRESS}>In Progress</option>
+          <option value={TaskStatus.IN_REVIEW}>In Review</option>
           <option value={TaskStatus.DONE}>Done</option>
         </select>
         <span className="task-date">

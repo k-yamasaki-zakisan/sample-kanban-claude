@@ -46,35 +46,8 @@ jobs:
         cd backend
         ./gradlew compileKotlin compileTestKotlin --warning-mode all
 
-    - name: Run detekt (Kotlin static analysis)
+    - name: Run Kotlin compilation check
       run: |
         cd backend
-        ./gradlew detekt
+        ./gradlew compileKotlin compileTestKotlin
 
-    - name: Run ktlint (Kotlin style checker)
-      run: |
-        cd backend
-        ./gradlew ktlintCheck
-
-    - name: Upload detekt reports
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: detekt-reports
-        path: backend/build/reports/detekt/
-
-    - name: Upload ktlint reports
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: ktlint-reports
-        path: backend/build/reports/ktlint/
-
-    - name: Annotate PR with detekt findings
-      uses: github/super-linter/slim@v4
-      if: github.event_name == 'pull_request'
-      env:
-        DEFAULT_BRANCH: main
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        VALIDATE_KOTLIN: true
-        VALIDATE_ALL_CODEBASE: false

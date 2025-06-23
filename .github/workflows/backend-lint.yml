@@ -56,14 +56,14 @@ jobs:
         ./gradlew ktlintCheck
 
     - name: Upload detekt reports
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: detekt-reports
         path: backend/build/reports/detekt/
 
     - name: Upload ktlint reports
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: ktlint-reports

@@ -40,7 +40,7 @@ jobs:
     - name: Run unit tests
       run: |
         cd frontend
-        npm test -- --coverage --watchAll=false --testResultsProcessor=jest-sonar-reporter
+        npm test -- --coverage --watchAll=false
       env:
         CI: true
 
@@ -69,13 +69,6 @@ jobs:
         name: frontend-coverage-node-${{ matrix.node-version }}
         fail_ci_if_error: false
 
-    - name: Generate test summary
-      uses: dorny/test-reporter@v1
-      if: success() || failure()
-      with:
-        name: Frontend Test Results (Node ${{ matrix.node-version }})
-        path: frontend/test-report.xml
-        reporter: jest-junit
 
   accessibility-test:
     name: Accessibility Tests

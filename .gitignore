@@ -35,9 +35,6 @@ pgadmin_data/
 # Backend (Kotlin/Gradle)
 backend/build/
 backend/.gradle/
-backend/gradle/
-backend/gradlew
-backend/gradlew.bat
 backend/out/
 backend/bin/
 backend/*.jar

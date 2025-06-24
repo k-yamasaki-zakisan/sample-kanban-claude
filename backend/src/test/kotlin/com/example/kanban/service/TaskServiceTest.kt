@@ -14,7 +14,6 @@ import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.junit.jupiter.MockitoExtension
 import java.time.LocalDateTime
-import java.util.*
 
 @ExtendWith(MockitoExtension::class)
 class TaskServiceTest {
@@ -27,6 +26,7 @@ class TaskServiceTest {
 
     private lateinit var testTask: Task
     private lateinit var testTasks: List<Task>
+    private val testUserId = 1L
 
     @BeforeEach
     fun setUp() {
@@ -35,6 +35,7 @@ class TaskServiceTest {
             title = "Test Task",
             description = "Test Description",
             status = TaskStatus.TODO,
+            userId = testUserId,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now()
         )
@@ -46,6 +47,7 @@ class TaskServiceTest {
                 title = "Test Task 2",
                 description = "Test Description 2",
                 status = TaskStatus.IN_PROGRESS,
+                userId = testUserId,
                 createdAt = LocalDateTime.now(),
                 updatedAt = LocalDateTime.now()
             ),
@@ -53,7 +55,8 @@ class TaskServiceTest {
                 id = 3L,
                 title = "Test Task 3",
                 description = "Test Description 3",
-                status = TaskStatus.IN_REVIEW,
+                status = TaskStatus.DONE,
+                userId = testUserId,
                 createdAt = LocalDateTime.now(),
                 updatedAt = LocalDateTime.now()
             )
@@ -61,87 +64,86 @@ class TaskServiceTest {
     }
 
     @Test
-    fun `getAllTasks should return all tasks ordered by creation date desc`() {
+    fun `getAllTasksByUser should return all tasks for user ordered by creation date desc`() {
         // Given
-        `when`(taskRepository.findByOrderByCreatedAtDesc()).thenReturn(testTasks)
+        `when`(taskRepository.findByUserIdOrderByCreatedAtDesc(testUserId)).thenReturn(testTasks)
 
         // When
-        val result = taskService.getAllTasks()
+        val result = taskService.getAllTasksByUser(testUserId)
 
         // Then
         assertEquals(3, result.size)
         assertEquals("Test Task", result[0].title)
         assertEquals("Test Task 2", result[1].title)
         assertEquals("Test Task 3", result[2].title)
-        verify(taskRepository).findByOrderByCreatedAtDesc()
+        verify(taskRepository).findByUserIdOrderByCreatedAtDesc(testUserId)
     }
 
     @Test
-    fun `getAllTasks should return empty list when no tasks exist`() {
+    fun `getAllTasksByUser should return empty list when no tasks exist for user`() {
         // Given
-        `when`(taskRepository.findByOrderByCreatedAtDesc()).thenReturn(emptyList())
+        `when`(taskRepository.findByUserIdOrderByCreatedAtDesc(testUserId)).thenReturn(emptyList())
 
         // When
-        val result = taskService.getAllTasks()
+        val result = taskService.getAllTasksByUser(testUserId)
 
         // Then
         assertTrue(result.isEmpty())
-        verify(taskRepository).findByOrderByCreatedAtDesc()
+        verify(taskRepository).findByUserIdOrderByCreatedAtDesc(testUserId)
     }
 
     @Test
-    fun `getTaskById should return task when exists`() {
+    fun `getTaskByUserAndId should return task when exists for user`() {
         // Given
-        `when`(taskRepository.findById(1L)).thenReturn(Optional.of(testTask))
+        `when`(taskRepository.findByUserIdAndId(testUserId, 1L)).thenReturn(testTask)
 
         // When
-        val result = taskService.getTaskById(1L)
+        val result = taskService.getTaskByUserAndId(testUserId, 1L)
 
         // Then
-        assertNotNull(result)
-        assertEquals(1L, result!!.id)
+        assertEquals(1L, result.id)
         assertEquals("Test Task", result.title)
         assertEquals("Test Description", result.description)
         assertEquals(TaskStatus.TODO, result.status)
-        verify(taskRepository).findById(1L)
+        verify(taskRepository).findByUserIdAndId(testUserId, 1L)
     }
 
     @Test
-    fun `getTaskById should return null when task does not exist`() {
+    fun `getTaskByUserAndId should throw exception when task not found or access denied`() {
         // Given
-        `when`(taskRepository.findById(999L)).thenReturn(Optional.empty())
+        `when`(taskRepository.findByUserIdAndId(testUserId, 1L)).thenReturn(null)
 
-        // When
-        val result = taskService.getTaskById(999L)
-
-        // Then
-        assertNull(result)
-        verify(taskRepository).findById(999L)
+        // When & Then
+        val exception = assertThrows(IllegalArgumentException::class.java) {
+            taskService.getTaskByUserAndId(testUserId, 1L)
+        }
+        assertEquals("Task not found or access denied for user $testUserId", exception.message)
+        verify(taskRepository).findByUserIdAndId(testUserId, 1L)
     }
 
     @Test
-    fun `createTask should create and return new task`() {
+    fun `createTaskForUser should save and return created task`() {
         // Given
-        val createDto = TaskCreateDto(
+        val taskCreateDto = TaskCreateDto(
             title = "New Task",
             description = "New Description"
         )
         val savedTask = Task(
-            id = 1L,
+            id = 4L,
             title = "New Task",
             description = "New Description",
             status = TaskStatus.TODO,
+            userId = testUserId,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now()
         )
         `when`(taskRepository.save(any(Task::class.java))).thenReturn(savedTask)
 
         // When
-        val result = taskService.createTask(createDto)
+        val result = taskService.createTaskForUser(taskCreateDto, testUserId)
 
         // Then
-        assertNotNull(result)
-        assertEquals(1L, result.id)
+        assertEquals(4L, result.id)
         assertEquals("New Task", result.title)
         assertEquals("New Description", result.description)
         assertEquals(TaskStatus.TODO, result.status)
@@ -149,36 +151,37 @@ class TaskServiceTest {
     }
 
     @Test
-    fun `createTask should create task with null description`() {
+    fun `createTaskForUser should set default values correctly`() {
         // Given
-        val createDto = TaskCreateDto(
+        val taskCreateDto = TaskCreateDto(
             title = "New Task",
             description = null
         )
         val savedTask = Task(
-            id = 1L,
+            id = 4L,
             title = "New Task",
             description = null,
             status = TaskStatus.TODO,
+            userId = testUserId,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now()
         )
         `when`(taskRepository.save(any(Task::class.java))).thenReturn(savedTask)
 
         // When
-        val result = taskService.createTask(createDto)
+        val result = taskService.createTaskForUser(taskCreateDto, testUserId)
 
         // Then
-        assertNotNull(result)
         assertEquals("New Task", result.title)
         assertNull(result.description)
+        assertEquals(TaskStatus.TODO, result.status)
         verify(taskRepository).save(any(Task::class.java))
     }
 
     @Test
-    fun `updateTask should update existing task`() {
+    fun `updateTaskForUser should update and return task when exists`() {
         // Given
-        val updateDto = TaskUpdateDto(
+        val taskUpdateDto = TaskUpdateDto(
             title = "Updated Task",
             description = "Updated Description",
             status = TaskStatus.IN_PROGRESS
@@ -189,162 +192,145 @@ class TaskServiceTest {
             status = TaskStatus.IN_PROGRESS,
             updatedAt = LocalDateTime.now()
         )
-        `when`(taskRepository.findById(1L)).thenReturn(Optional.of(testTask))
+        `when`(taskRepository.findByUserIdAndId(testUserId, 1L)).thenReturn(testTask)
         `when`(taskRepository.save(any(Task::class.java))).thenReturn(updatedTask)
 
         // When
-        val result = taskService.updateTask(1L, updateDto)
+        val result = taskService.updateTaskForUser(1L, taskUpdateDto, testUserId)
 
         // Then
-        assertNotNull(result)
-        assertEquals("Updated Task", result!!.title)
+        assertEquals("Updated Task", result.title)
         assertEquals("Updated Description", result.description)
         assertEquals(TaskStatus.IN_PROGRESS, result.status)
-        verify(taskRepository).findById(1L)
+        verify(taskRepository).findByUserIdAndId(testUserId, 1L)
         verify(taskRepository).save(any(Task::class.java))
     }
 
     @Test
-    fun `updateTask should update only specified fields`() {
+    fun `updateTaskForUser should update only provided fields`() {
         // Given
-        val updateDto = TaskUpdateDto(
-            title = "Updated Title Only",
+        val taskUpdateDto = TaskUpdateDto(
+            title = "Updated Task",
             description = null,
             status = null
         )
         val updatedTask = testTask.copy(
-            title = "Updated Title Only",
+            title = "Updated Task",
             updatedAt = LocalDateTime.now()
         )
-        `when`(taskRepository.findById(1L)).thenReturn(Optional.of(testTask))
+        `when`(taskRepository.findByUserIdAndId(testUserId, 1L)).thenReturn(testTask)
         `when`(taskRepository.save(any(Task::class.java))).thenReturn(updatedTask)
 
         // When
-        val result = taskService.updateTask(1L, updateDto)
+        val result = taskService.updateTaskForUser(1L, taskUpdateDto, testUserId)
 
         // Then
-        assertNotNull(result)
-        assertEquals("Updated Title Only", result!!.title)
-        assertEquals("Test Description", result.description) // Original description preserved
-        assertEquals(TaskStatus.TODO, result.status) // Original status preserved
-        verify(taskRepository).findById(1L)
+        assertEquals("Updated Task", result.title)
+        assertEquals("Test Description", result.description)
+        assertEquals(TaskStatus.TODO, result.status)
+        verify(taskRepository).findByUserIdAndId(testUserId, 1L)
         verify(taskRepository).save(any(Task::class.java))
     }
 
     @Test
-    fun `updateTask should return null when task does not exist`() {
+    fun `updateTaskForUser should throw exception when task not found`() {
         // Given
-        val updateDto = TaskUpdateDto(title = "Updated Task")
-        `when`(taskRepository.findById(999L)).thenReturn(Optional.empty())
+        val taskUpdateDto = TaskUpdateDto(
+            title = "Updated Task",
+            description = "Updated Description",
+            status = TaskStatus.IN_PROGRESS
+        )
+        `when`(taskRepository.findByUserIdAndId(testUserId, 1L)).thenReturn(null)
 
-        // When
-        val result = taskService.updateTask(999L, updateDto)
-
-        // Then
-        assertNull(result)
-        verify(taskRepository).findById(999L)
+        // When & Then
+        val exception = assertThrows(IllegalArgumentException::class.java) {
+            taskService.updateTaskForUser(1L, taskUpdateDto, testUserId)
+        }
+        assertEquals("Task not found or access denied for user $testUserId and task 1", exception.message)
+        verify(taskRepository).findByUserIdAndId(testUserId, 1L)
         verify(taskRepository, never()).save(any(Task::class.java))
     }
 
     @Test
-    fun `updateTask should update task status to IN_REVIEW`() {
+    fun `deleteTaskForUser should delete task when exists`() {
         // Given
-        val updateDto = TaskUpdateDto(status = TaskStatus.IN_REVIEW)
-        val updatedTask = testTask.copy(
-            status = TaskStatus.IN_REVIEW,
-            updatedAt = LocalDateTime.now()
-        )
-        `when`(taskRepository.findById(1L)).thenReturn(Optional.of(testTask))
-        `when`(taskRepository.save(any(Task::class.java))).thenReturn(updatedTask)
+        `when`(taskRepository.existsByUserIdAndId(testUserId, 1L)).thenReturn(true)
 
         // When
-        val result = taskService.updateTask(1L, updateDto)
-
-        // Then
-        assertNotNull(result)
-        assertEquals(TaskStatus.IN_REVIEW, result!!.status)
-        verify(taskRepository).findById(1L)
-        verify(taskRepository).save(any(Task::class.java))
-    }
-
-    @Test
-    fun `deleteTask should delete existing task and return true`() {
-        // Given
-        `when`(taskRepository.existsById(1L)).thenReturn(true)
-        doNothing().`when`(taskRepository).deleteById(1L)
-
-        // When
-        val result = taskService.deleteTask(1L)
+        val result = taskService.deleteTaskForUser(1L, testUserId)
 
         // Then
         assertTrue(result)
-        verify(taskRepository).existsById(1L)
+        verify(taskRepository).existsByUserIdAndId(testUserId, 1L)
         verify(taskRepository).deleteById(1L)
     }
 
     @Test
-    fun `deleteTask should return false when task does not exist`() {
+    fun `deleteTaskForUser should throw exception when task not found`() {
         // Given
-        `when`(taskRepository.existsById(999L)).thenReturn(false)
+        `when`(taskRepository.existsByUserIdAndId(testUserId, 1L)).thenReturn(false)
 
-        // When
-        val result = taskService.deleteTask(999L)
-
-        // Then
-        assertFalse(result)
-        verify(taskRepository).existsById(999L)
-        verify(taskRepository, never()).deleteById(999L)
+        // When & Then
+        val exception = assertThrows(IllegalArgumentException::class.java) {
+            taskService.deleteTaskForUser(1L, testUserId)
+        }
+        assertEquals("Task not found or access denied for user $testUserId and task 1", exception.message)
+        verify(taskRepository).existsByUserIdAndId(testUserId, 1L)
+        verify(taskRepository, never()).deleteById(1L)
     }
 
     @Test
-    fun `getTasksByStatus should return tasks with specified status`() {
+    fun `getTasksByUserAndStatus should return tasks filtered by status`() {
         // Given
         val todoTasks = listOf(testTask)
-        `when`(taskRepository.findByStatus(TaskStatus.TODO)).thenReturn(todoTasks)
+        `when`(taskRepository.findByUserIdAndStatus(testUserId, TaskStatus.TODO)).thenReturn(todoTasks)
 
         // When
-        val result = taskService.getTasksByStatus(TaskStatus.TODO)
+        val result = taskService.getTasksByUserAndStatus(testUserId, TaskStatus.TODO)
 
         // Then
         assertEquals(1, result.size)
         assertEquals(TaskStatus.TODO, result[0].status)
         assertEquals("Test Task", result[0].title)
-        verify(taskRepository).findByStatus(TaskStatus.TODO)
+        verify(taskRepository).findByUserIdAndStatus(testUserId, TaskStatus.TODO)
     }
 
     @Test
-    fun `getTasksByStatus should return empty list when no tasks with status exist`() {
+    fun `getTasksByUserAndStatus should return empty list when no tasks match status`() {
         // Given
-        `when`(taskRepository.findByStatus(TaskStatus.DONE)).thenReturn(emptyList())
+        `when`(taskRepository.findByUserIdAndStatus(testUserId, TaskStatus.DONE)).thenReturn(emptyList())
 
         // When
-        val result = taskService.getTasksByStatus(TaskStatus.DONE)
+        val result = taskService.getTasksByUserAndStatus(testUserId, TaskStatus.DONE)
 
         // Then
         assertTrue(result.isEmpty())
-        verify(taskRepository).findByStatus(TaskStatus.DONE)
+        verify(taskRepository).findByUserIdAndStatus(testUserId, TaskStatus.DONE)
     }
 
     @Test
-    fun `getTasksByStatus should return IN_REVIEW tasks`() {
+    fun `getTasksByUserAndStatus should handle different statuses correctly`() {
         // Given
-        val inReviewTask = Task(
-            id = 1L,
-            title = "Review Task",
-            description = "Task in review",
-            status = TaskStatus.IN_REVIEW,
-            createdAt = LocalDateTime.now(),
-            updatedAt = LocalDateTime.now()
+        val inProgressTasks = listOf(
+            Task(
+                id = 2L,
+                title = "In Progress Task",
+                description = "Description",
+                status = TaskStatus.IN_PROGRESS,
+                userId = testUserId,
+                createdAt = LocalDateTime.now(),
+                updatedAt = LocalDateTime.now()
+            )
         )
-        `when`(taskRepository.findByStatus(TaskStatus.IN_REVIEW)).thenReturn(listOf(inReviewTask))
+        `when`(taskRepository.findByUserIdAndStatus(testUserId, TaskStatus.IN_PROGRESS)).thenReturn(inProgressTasks)
 
         // When
-        val result = taskService.getTasksByStatus(TaskStatus.IN_REVIEW)
+        val result = taskService.getTasksByUserAndStatus(testUserId, TaskStatus.IN_PROGRESS)
 
         // Then
         assertEquals(1, result.size)
-        assertEquals(TaskStatus.IN_REVIEW, result[0].status)
-        assertEquals("Review Task", result[0].title)
-        verify(taskRepository).findByStatus(TaskStatus.IN_REVIEW)
+        assertEquals(TaskStatus.IN_PROGRESS, result[0].status)
+        assertEquals("In Progress Task", result[0].title)
+        verify(taskRepository).findByUserIdAndStatus(testUserId, TaskStatus.IN_PROGRESS)
     }
 }

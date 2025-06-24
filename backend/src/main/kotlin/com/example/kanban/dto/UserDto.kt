@@ -55,3 +55,7 @@ data class UserUpdateDto(
     @field:Size(max = 255, message = "メールアドレスは255文字以内で入力してください")
     val email: String? = null
 )
+
+data class ErrorResponseDto(
+    val error: String
+)

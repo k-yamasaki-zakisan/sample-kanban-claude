@@ -14,50 +14,56 @@ class TaskService(
     private val taskRepository: TaskRepository
 ) {
     
-    fun getAllTasks(): List<TaskResponseDto> {
-        return taskRepository.findByOrderByCreatedAtDesc()
+    // ユーザー別のタスク一覧取得
+    fun getAllTasksByUser(userId: Long): List<TaskResponseDto> {
+        return taskRepository.findByUserIdOrderByCreatedAtDesc(userId)
             .map { it.toResponseDto() }
     }
     
-    fun getTaskById(id: Long): TaskResponseDto? {
-        return taskRepository.findById(id)
-            .map { it.toResponseDto() }
-            .orElse(null)
+    // ユーザー別のタスク詳細取得
+    fun getTaskByUserAndId(userId: Long, id: Long): TaskResponseDto {
+        return taskRepository.findByUserIdAndId(userId, id)
+            ?.toResponseDto()
+            ?: throw IllegalArgumentException("Task not found or access denied for user $userId")
     }
     
-    fun createTask(taskCreateDto: TaskCreateDto): TaskResponseDto {
+    // ユーザー別のタスク作成
+    fun createTaskForUser(taskCreateDto: TaskCreateDto, userId: Long): TaskResponseDto {
         val task = Task(
             title = taskCreateDto.title,
-            description = taskCreateDto.description
+            description = taskCreateDto.description,
+            userId = userId
         )
         return taskRepository.save(task).toResponseDto()
     }
     
-    fun updateTask(id: Long, taskUpdateDto: TaskUpdateDto): TaskResponseDto? {
-        return taskRepository.findById(id)
-            .map { existingTask ->
-                val updatedTask = existingTask.copy(
-                    title = taskUpdateDto.title ?: existingTask.title,
-                    description = taskUpdateDto.description ?: existingTask.description,
-                    status = taskUpdateDto.status ?: existingTask.status,
-                    updatedAt = LocalDateTime.now()
-                )
-                taskRepository.save(updatedTask).toResponseDto()
-            }
-            .orElse(null)
+    // ユーザー別のタスク更新
+    fun updateTaskForUser(id: Long, taskUpdateDto: TaskUpdateDto, userId: Long): TaskResponseDto {
+        val existingTask = taskRepository.findByUserIdAndId(userId, id)
+            ?: throw IllegalArgumentException("Task not found or access denied for user $userId and task $id")
+        
+        val updatedTask = existingTask.copy(
+            title = taskUpdateDto.title ?: existingTask.title,
+            description = taskUpdateDto.description ?: existingTask.description,
+            status = taskUpdateDto.status ?: existingTask.status,
+            updatedAt = LocalDateTime.now()
+        )
+        
+        return taskRepository.save(updatedTask).toResponseDto()
     }
     
-    fun deleteTask(id: Long): Boolean {
-        return if (taskRepository.existsById(id)) {
-            taskRepository.deleteById(id)
-            true
-        } else {
-            false
+    // ユーザー別のタスク削除
+    fun deleteTaskForUser(id: Long, userId: Long): Boolean {
+        if (!taskRepository.existsByUserIdAndId(userId, id)) {
+            throw IllegalArgumentException("Task not found or access denied for user $userId and task $id")
         }
+        taskRepository.deleteById(id)
+        return true
     }
     
-    fun getTasksByStatus(status: TaskStatus): List<TaskResponseDto> {
-        return taskRepository.findByStatus(status)
+    // ユーザー別のステータス別タスク取得
+    fun getTasksByUserAndStatus(userId: Long, status: TaskStatus): List<TaskResponseDto> {
+        return taskRepository.findByUserIdAndStatus(userId, status)
             .map { it.toResponseDto() }
     }
     

@@ -18,14 +18,10 @@ class AuthController(
 ) {
 
     @PostMapping("/login")
-    fun login(@Valid @RequestBody loginRequest: LoginRequestDto): ResponseEntity<LoginResponseDto> {
+    fun login(@Valid @RequestBody loginRequest: LoginRequestDto): ResponseEntity<out Any> {
         val user = userService.authenticate(loginRequest)
             ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(LoginResponseDto(
-                    user = UserResponseDto(0, "", "", null, 
-                        java.time.LocalDateTime.now(), java.time.LocalDateTime.now()),
-                    token = ""
-                ))
+                .body(ErrorResponseDto("Invalid email or password"))
 
         val token = jwtService.generateToken(user.email, user.id)
         val loginResponse = LoginResponseDto(user = user, token = token)
@@ -40,23 +36,14 @@ class AuthController(
 
     @GetMapping("/me")
     fun getCurrentUser(authentication: Authentication): ResponseEntity<UserResponseDto> {
-        val user = authentication.principal as? User
+        val user = authentication.principal as? UserResponseDto
             ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
 
-        val userResponse = UserResponseDto(
-            id = user.id,
-            name = user.name,
-            email = user.email,
-            lastLogin = user.lastLogin,
-            createdAt = user.createdAt,
-            updatedAt = user.updatedAt
-        )
-
-        return ResponseEntity.ok(userResponse)
+        return ResponseEntity.ok(user)
     }
 
     @PostMapping("/register")
-    fun register(@Valid @RequestBody userCreateDto: UserCreateDto): ResponseEntity<Any> {
+    fun register(@Valid @RequestBody userCreateDto: UserCreateDto): ResponseEntity<out Any> {
         return try {
             val user = userService.createUser(userCreateDto)
             ResponseEntity.status(HttpStatus.CREATED).body(user)

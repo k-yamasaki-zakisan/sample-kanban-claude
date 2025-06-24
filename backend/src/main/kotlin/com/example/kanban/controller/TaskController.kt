@@ -3,6 +3,7 @@ package com.example.kanban.controller
 import com.example.kanban.dto.TaskCreateDto
 import com.example.kanban.dto.TaskResponseDto
 import com.example.kanban.dto.TaskUpdateDto
+import com.example.kanban.dto.UserResponseDto
 import com.example.kanban.model.TaskStatus
 import com.example.kanban.service.TaskService
 import jakarta.validation.Valid
@@ -19,15 +20,17 @@ class TaskController(
     
     @GetMapping
     fun getAllTasks(authentication: Authentication): List<TaskResponseDto> {
-        return taskService.getAllTasks()
+        val user = authentication.principal as UserResponseDto
+        return taskService.getAllTasksByUser(user.id)
     }
     
     @GetMapping("/{id}")
-    fun getTaskById(@PathVariable id: Long): ResponseEntity<TaskResponseDto> {
-        val task = taskService.getTaskById(id)
-        return if (task != null) {
+    fun getTaskById(@PathVariable id: Long, authentication: Authentication): ResponseEntity<TaskResponseDto> {
+        val user = authentication.principal as UserResponseDto
+        return try {
+            val task = taskService.getTaskByUserAndId(user.id, id)
             ResponseEntity.ok(task)
-        } else {
+        } catch (e: IllegalArgumentException) {
             ResponseEntity.notFound().build()
         }
     }
@@ -37,31 +40,40 @@ class TaskController(
         @Valid @RequestBody taskCreateDto: TaskCreateDto,
         authentication: Authentication
     ): ResponseEntity<TaskResponseDto> {
-        val createdTask = taskService.createTask(taskCreateDto)
+        val user = authentication.principal as UserResponseDto
+        val createdTask = taskService.createTaskForUser(taskCreateDto, user.id)
         return ResponseEntity.status(HttpStatus.CREATED).body(createdTask)
     }
     
     @PutMapping("/{id}")
-    fun updateTask(@PathVariable id: Long, @Valid @RequestBody taskUpdateDto: TaskUpdateDto): ResponseEntity<TaskResponseDto> {
-        val updatedTask = taskService.updateTask(id, taskUpdateDto)
-        return if (updatedTask != null) {
+    fun updateTask(
+        @PathVariable id: Long, 
+        @Valid @RequestBody taskUpdateDto: TaskUpdateDto,
+        authentication: Authentication
+    ): ResponseEntity<TaskResponseDto> {
+        val user = authentication.principal as UserResponseDto
+        return try {
+            val updatedTask = taskService.updateTaskForUser(id, taskUpdateDto, user.id)
             ResponseEntity.ok(updatedTask)
-        } else {
+        } catch (e: IllegalArgumentException) {
             ResponseEntity.notFound().build()
         }
     }
     
     @DeleteMapping("/{id}")
-    fun deleteTask(@PathVariable id: Long): ResponseEntity<Void> {
-        return if (taskService.deleteTask(id)) {
+    fun deleteTask(@PathVariable id: Long, authentication: Authentication): ResponseEntity<Void> {
+        val user = authentication.principal as UserResponseDto
+        return try {
+            taskService.deleteTaskForUser(id, user.id)
             ResponseEntity.noContent().build()
-        } else {
+        } catch (e: IllegalArgumentException) {
             ResponseEntity.notFound().build()
         }
     }
     
     @GetMapping("/status/{status}")
-    fun getTasksByStatus(@PathVariable status: TaskStatus): List<TaskResponseDto> {
-        return taskService.getTasksByStatus(status)
+    fun getTasksByStatus(@PathVariable status: TaskStatus, authentication: Authentication): List<TaskResponseDto> {
+        val user = authentication.principal as UserResponseDto
+        return taskService.getTasksByUserAndStatus(user.id, status)
     }
 }

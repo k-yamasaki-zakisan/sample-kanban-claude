@@ -114,7 +114,7 @@ class GlobalExceptionHandlerTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.message").value("入力値にエラーがあります"))
             .andExpect(jsonPath("$.errors").isArray)
-            .andExpect(jsonPath("$.errors.length()").value(3))
+            .andExpect(jsonPath("$.errors.length()").value(5)) // name(2) + email(1) + password(2) = 5
             .andExpect(jsonPath("$.errors[?(@.field == 'name')]").exists())
             .andExpect(jsonPath("$.errors[?(@.field == 'email')]").exists())
             .andExpect(jsonPath("$.errors[?(@.field == 'password')]").exists())

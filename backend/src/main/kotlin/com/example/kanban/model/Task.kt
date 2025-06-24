@@ -20,6 +20,9 @@ data class Task(
     @Column(nullable = false)
     val status: TaskStatus = TaskStatus.TODO,
     
+    @Column(nullable = false, name = "user_id")
+    val userId: Long,
+    
     @Column(nullable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),
     

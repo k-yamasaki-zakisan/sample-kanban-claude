@@ -4,9 +4,10 @@ import './Login.css';
 
 interface LoginProps {
   onLogin: (token: string, user: User) => void;
+  onShowRegister: () => void;
 }
 
-const Login: React.FC<LoginProps> = ({ onLogin }) => {
+const Login: React.FC<LoginProps> = ({ onLogin, onShowRegister }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -18,13 +19,16 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:8080/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await fetch(
+        `${process.env.API_BASE_URL || 'http://localhost:8080'}/api/auth/login`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password }),
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -71,6 +75,12 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             {isLoading ? 'ログイン中...' : 'ログイン'}
           </button>
         </form>
+        <div className="register-link">
+          <span>アカウントをお持ちでない方は</span>
+          <button type="button" onClick={onShowRegister} className="link-button">
+            新規登録はこちら
+          </button>
+        </div>
       </div>
     </div>
   );

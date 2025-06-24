@@ -7,13 +7,7 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
-  useDroppable,
-  DragOverEvent,
 } from '@dnd-kit/core';
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
 import { Task, TaskStatus, TaskCreateDto, TaskUpdateDto } from '../types/Task';
 import { taskApi } from '../services/api';
 import TaskCard from './TaskCard';

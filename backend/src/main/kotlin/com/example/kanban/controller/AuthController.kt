@@ -4,6 +4,7 @@ import com.example.kanban.dto.*
 import com.example.kanban.service.UserService
 import com.example.kanban.service.JwtService
 import com.example.kanban.model.User
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
@@ -17,7 +18,7 @@ class AuthController(
 ) {
 
     @PostMapping("/login")
-    fun login(@RequestBody loginRequest: LoginRequestDto): ResponseEntity<LoginResponseDto> {
+    fun login(@Valid @RequestBody loginRequest: LoginRequestDto): ResponseEntity<LoginResponseDto> {
         val user = userService.authenticate(loginRequest)
             ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(LoginResponseDto(
@@ -55,7 +56,7 @@ class AuthController(
     }
 
     @PostMapping("/register")
-    fun register(@RequestBody userCreateDto: UserCreateDto): ResponseEntity<Any> {
+    fun register(@Valid @RequestBody userCreateDto: UserCreateDto): ResponseEntity<Any> {
         return try {
             val user = userService.createUser(userCreateDto)
             ResponseEntity.status(HttpStatus.CREATED).body(user)

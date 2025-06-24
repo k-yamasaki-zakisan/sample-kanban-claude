@@ -31,8 +31,14 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
     }
   };
 
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onCancel();
+    }
+  };
+
   return (
-    <div className="task-form-overlay">
+    <div className="task-form-overlay" onClick={handleOverlayClick}>
       <div className="task-form-modal">
         <form onSubmit={handleSubmit} className="task-form">
           <h2>{task ? 'Edit Task' : 'Create New Task'}</h2>

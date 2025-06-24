@@ -5,6 +5,7 @@ import com.example.kanban.dto.TaskResponseDto
 import com.example.kanban.dto.TaskUpdateDto
 import com.example.kanban.model.TaskStatus
 import com.example.kanban.service.TaskService
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
@@ -33,7 +34,7 @@ class TaskController(
     
     @PostMapping
     fun createTask(
-        @RequestBody taskCreateDto: TaskCreateDto,
+        @Valid @RequestBody taskCreateDto: TaskCreateDto,
         authentication: Authentication
     ): ResponseEntity<TaskResponseDto> {
         val createdTask = taskService.createTask(taskCreateDto)
@@ -41,7 +42,7 @@ class TaskController(
     }
     
     @PutMapping("/{id}")
-    fun updateTask(@PathVariable id: Long, @RequestBody taskUpdateDto: TaskUpdateDto): ResponseEntity<TaskResponseDto> {
+    fun updateTask(@PathVariable id: Long, @Valid @RequestBody taskUpdateDto: TaskUpdateDto): ResponseEntity<TaskResponseDto> {
         val updatedTask = taskService.updateTask(id, taskUpdateDto)
         return if (updatedTask != null) {
             ResponseEntity.ok(updatedTask)

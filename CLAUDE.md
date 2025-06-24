@@ -157,7 +157,7 @@ data class TaskResponseDto(
 
 ### 必要な環境
 - **Java**: 17以上
-- **Node.js**: 16以上
+- **Node.js**: 22 (メジャーバージョン固定)
 - **Docker**: 最新版
 - **npm**: Node.js付属版
 

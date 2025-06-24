@@ -10,6 +10,28 @@ const api = axios.create({
   },
 });
 
+// Interceptor to add JWT token to requests
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Interceptor to handle authentication errors
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.reload();
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const taskApi = {
   getAllTasks: async (): Promise<Task[]> => {
     const response = await api.get<Task[]>('/tasks');

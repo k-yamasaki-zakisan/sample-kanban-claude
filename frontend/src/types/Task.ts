@@ -24,3 +24,12 @@ export interface TaskUpdateDto {
   description?: string;
   status?: TaskStatus;
 }
+
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+  lastLogin: string | null;
+  createdAt: string;
+  updatedAt: string;
+}

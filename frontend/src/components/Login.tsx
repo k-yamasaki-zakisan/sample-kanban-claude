@@ -1,0 +1,79 @@
+import React, { useState } from 'react';
+import { User } from '../types/Task';
+import './Login.css';
+
+interface LoginProps {
+  onLogin: (token: string, user: User) => void;
+}
+
+const Login: React.FC<LoginProps> = ({ onLogin }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch('http://localhost:8080/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        onLogin(data.token, data.user);
+      } else {
+        setError('ログインに失敗しました。メールアドレスとパスワードを確認してください。');
+      }
+    } catch (error) {
+      setError('ネットワークエラーが発生しました。');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="login-container">
+      <div className="login-card">
+        <h2>Kanban Board</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="email">メールアドレス</label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="password">パスワード</label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          {error && <div className="error-message">{error}</div>}
+          <button type="submit" disabled={isLoading}>
+            {isLoading ? 'ログイン中...' : 'ログイン'}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default Login;

@@ -8,10 +8,11 @@ Kotlin + Spring Boot をバックエンド、React + TypeScript をフロント�
 
 ### システム構成
 - **フロントエンド**: React 18 + TypeScript + CSS3
-- **バックエンド**: Kotlin + Spring Boot 3.1.5 + Spring Data JPA
+- **バックエンド**: Kotlin 2.1.21 + Spring Boot 3.1.5 + Spring Data JPA
 - **データベース**: PostgreSQL 17
 - **開発環境**: Docker Compose
 - **ビルドツール**: Gradle (Kotlin DSL), npm
+- **Java**: 21 (LTS)
 
 ### アプリケーション構造
 ```
@@ -156,7 +157,7 @@ data class TaskResponseDto(
 ## 開発環境
 
 ### 必要な環境
-- **Java**: 17以上
+- **Java**: 21 (LTS、メジャーバージョン固定)
 - **Node.js**: 22 (メジャーバージョン固定)
 - **Docker**: 最新版
 - **npm**: Node.js付属版

@@ -7,17 +7,17 @@ import com.example.kanban.model.TaskStatus
 import com.example.kanban.service.TaskService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/tasks")
-@CrossOrigin(origins = ["http://localhost:3000"])
 class TaskController(
     private val taskService: TaskService
 ) {
     
     @GetMapping
-    fun getAllTasks(): List<TaskResponseDto> {
+    fun getAllTasks(authentication: Authentication): List<TaskResponseDto> {
         return taskService.getAllTasks()
     }
     
@@ -32,7 +32,10 @@ class TaskController(
     }
     
     @PostMapping
-    fun createTask(@RequestBody taskCreateDto: TaskCreateDto): ResponseEntity<TaskResponseDto> {
+    fun createTask(
+        @RequestBody taskCreateDto: TaskCreateDto,
+        authentication: Authentication
+    ): ResponseEntity<TaskResponseDto> {
         val createdTask = taskService.createTask(taskCreateDto)
         return ResponseEntity.status(HttpStatus.CREATED).body(createdTask)
     }

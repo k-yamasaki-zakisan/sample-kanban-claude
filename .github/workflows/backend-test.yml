@@ -70,13 +70,12 @@ jobs:
     - name: Run integration tests
       run: |
         cd backend
-        ./gradlew integrationTest --info
+        ./gradlew test --info
       env:
         SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/kanban_db_test
         SPRING_DATASOURCE_USERNAME: kanban_user
         SPRING_DATASOURCE_PASSWORD: kanban_password
         SPRING_PROFILES_ACTIVE: test
-      continue-on-error: true
 
 
     - name: Upload test results

@@ -2,9 +2,12 @@ package com.example.kanban.controller
 
 import com.example.kanban.dto.TaskCreateDto
 import com.example.kanban.dto.TaskUpdateDto
+import com.example.kanban.dto.UserCreateDto
 import com.example.kanban.model.TaskStatus
 import com.example.kanban.service.JwtService
+import com.example.kanban.service.UserService
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -33,8 +36,27 @@ class TaskControllerValidationTest {
     @Autowired
     private lateinit var jwtService: JwtService
 
+    @Autowired
+    private lateinit var userService: UserService
+
+    private lateinit var testUserEmail: String
+    private var testUserId: Long = 0L
+
+    @BeforeEach
+    @Transactional
+    fun setUp() {
+        testUserEmail = "test${System.currentTimeMillis()}@example.com"
+        val userCreateDto = UserCreateDto(
+            name = "Test User",
+            email = testUserEmail,
+            password = "password123"
+        )
+        val user = userService.createUser(userCreateDto)
+        testUserId = user.id
+    }
+
     private fun createTestToken(): String {
-        return jwtService.generateToken("test@example.com", 1L)
+        return jwtService.generateToken(testUserEmail, testUserId)
     }
 
     @Test

@@ -40,7 +40,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
   return (
     <div className="task-form-overlay" onClick={handleOverlayClick}>
       <div className="task-form-modal">
-        <form onSubmit={handleSubmit} className="task-form">
+        <form onSubmit={handleSubmit} className="task-form" noValidate>
           <h2>{task ? 'Edit Task' : 'Create New Task'}</h2>
           
           <div className="form-group">

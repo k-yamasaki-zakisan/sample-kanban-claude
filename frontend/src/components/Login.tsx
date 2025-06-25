@@ -3,7 +3,7 @@ import { User } from '../types/Task';
 import './Login.css';
 
 interface LoginProps {
-  onLogin: (token: string, user: User) => void;
+  onLogin: (user: User) => void;
   onShowRegister: () => void;
 }
 
@@ -34,7 +34,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, onShowRegister }) => {
         const data = await response.json();
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
-        onLogin(data.token, data.user);
+        onLogin(data.user);
       } else {
         setError('ログインに失敗しました。メールアドレスとパスワードを確認してください。');
       }
@@ -49,7 +49,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, onShowRegister }) => {
     <div className="login-container">
       <div className="login-card">
         <h2>Kanban Board</h2>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} noValidate>
           <div className="form-group">
             <label htmlFor="email">メールアドレス</label>
             <input

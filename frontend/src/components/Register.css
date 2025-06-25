@@ -52,13 +52,25 @@
   font-style: italic;
 }
 
-.error-message {
+.field-error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 0.5rem;
+  border-radius: 4px;
+  margin-top: 0.25rem;
+  border: 1px solid #f5c6cb;
+  font-size: 0.85rem;
+}
+
+.server-error-message {
   background-color: #f8d7da;
   color: #721c24;
   padding: 0.75rem;
   border-radius: 4px;
   margin-bottom: 1rem;
   border: 1px solid #f5c6cb;
+  font-size: 0.9rem;
+  text-align: center;
 }
 
 .register-button {

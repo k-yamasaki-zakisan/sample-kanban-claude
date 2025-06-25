@@ -3,7 +3,7 @@ import { User } from '../types/Task';
 import './Register.css';
 
 interface RegisterProps {
-  onRegister: (token: string, user: User) => void;
+  onRegister: (user: User) => void;
   onBackToLogin: () => void;
 }
 
@@ -13,35 +13,51 @@ const Register: React.FC<RegisterProps> = ({ onRegister, onBackToLogin }) => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    server: ''
+  });
 
   const validateForm = () => {
+    const errors = {
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      server: ''
+    };
+
     if (!name.trim()) {
-      setError('名前を入力してください。');
-      return false;
+      errors.name = '名前を入力してください。';
     }
     if (!email.trim()) {
-      setError('メールアドレスを入力してください。');
-      return false;
+      errors.email = 'メールアドレスを入力してください。';
     }
     if (password.length < 6) {
-      setError('パスワードは6文字以上で入力してください。');
-      return false;
-    }
-    if (!/(?=.*[a-zA-Z])(?=.*\d)/.test(password)) {
-      setError('パスワードは英字と数字の両方を含む必要があります。');
-      return false;
+      errors.password = 'パスワードは6文字以上で入力してください。';
+    } else if (!/(?=.*[a-zA-Z])(?=.*\d)/.test(password)) {
+      errors.password = 'パスワードは英字と数字の両方を含む必要があります。';
     }
     if (password !== confirmPassword) {
-      setError('パスワードが一致しません。');
-      return false;
+      errors.confirmPassword = 'パスワードが一致しません。';
     }
-    return true;
+
+    setFieldErrors(errors);
+    return !errors.name && !errors.email && !errors.password && !errors.confirmPassword;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setFieldErrors({
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      server: ''
+    });
 
     if (!validateForm()) {
       return;
@@ -71,19 +87,19 @@ const Register: React.FC<RegisterProps> = ({ onRegister, onBackToLogin }) => {
         const data = await response.json();
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
-        onRegister(data.token, data.user);
+        onRegister(data.user);
       } else {
         const errorData = await response.json().catch(() => null);
         if (response.status === 409) {
-          setError('このメールアドレスは既に登録されています。');
+          setFieldErrors(prev => ({ ...prev, email: 'このメールアドレスは既に登録されています。' }));
         } else if (errorData && errorData.message) {
-          setError(errorData.message);
+          setFieldErrors(prev => ({ ...prev, server: errorData.message }));
         } else {
-          setError('登録に失敗しました。入力内容を確認してください。');
+          setFieldErrors(prev => ({ ...prev, server: '登録に失敗しました。入力内容を確認してください。' }));
         }
       }
     } catch (error) {
-      setError('ネットワークエラーが発生しました。');
+      setFieldErrors(prev => ({ ...prev, server: 'ネットワークエラーが発生しました。' }));
     } finally {
       setIsLoading(false);
     }
@@ -93,7 +109,7 @@ const Register: React.FC<RegisterProps> = ({ onRegister, onBackToLogin }) => {
     <div className="register-container">
       <div className="register-card">
         <h2>新規ユーザー登録</h2>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} noValidate>
           <div className="form-group">
             <label htmlFor="name">名前</label>
             <input
@@ -104,6 +120,7 @@ const Register: React.FC<RegisterProps> = ({ onRegister, onBackToLogin }) => {
               required
               placeholder="山田太郎"
             />
+            {fieldErrors.name && <div className="field-error-message">{fieldErrors.name}</div>}
           </div>
           <div className="form-group">
             <label htmlFor="email">メールアドレス</label>
@@ -115,6 +132,7 @@ const Register: React.FC<RegisterProps> = ({ onRegister, onBackToLogin }) => {
               required
               placeholder="example@example.com"
             />
+            {fieldErrors.email && <div className="field-error-message">{fieldErrors.email}</div>}
           </div>
           <div className="form-group">
             <label htmlFor="password">パスワード</label>
@@ -126,6 +144,7 @@ const Register: React.FC<RegisterProps> = ({ onRegister, onBackToLogin }) => {
               required
               placeholder="英字と数字を含む6文字以上"
             />
+            {fieldErrors.password && <div className="field-error-message">{fieldErrors.password}</div>}
           </div>
           <div className="form-group">
             <label htmlFor="confirmPassword">パスワード（確認）</label>
@@ -137,8 +156,13 @@ const Register: React.FC<RegisterProps> = ({ onRegister, onBackToLogin }) => {
               required
               placeholder="パスワードを再入力"
             />
+            {fieldErrors.confirmPassword && <div className="field-error-message">{fieldErrors.confirmPassword}</div>}
           </div>
-          {error && <div className="error-message">{error}</div>}
+          {fieldErrors.server && (
+            <div className="server-error-message">
+              {fieldErrors.server}
+            </div>
+          )}
           <button type="submit" disabled={isLoading} className="register-button">
             {isLoading ? '登録中...' : '登録'}
           </button>

@@ -28,13 +28,13 @@ function App() {
     setIsLoading(false);
   }, []);
 
-  const handleLogin = (token: string, user: User) => {
+  const handleLogin = (user: User) => {
     setUser(user);
     setIsAuthenticated(true);
     setShowRegister(false);
   };
 
-  const handleRegister = (token: string, user: User) => {
+  const handleRegister = (user: User) => {
     setUser(user);
     setIsAuthenticated(true);
     setShowRegister(false);

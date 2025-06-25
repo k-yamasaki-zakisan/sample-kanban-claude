@@ -42,57 +42,70 @@ const Layout: React.FC<LayoutProps> = ({ user, onLogout, children }) => {
   }, [isMenuOpen]);
 
   return (
-    <div className="app-layout">
-      <header className="app-header">
-        <div className="header-left">
-          <h1>Kanban Board</h1>
+    <div className='app-layout'>
+      <header className='app-header'>
+        <div className='header-left'>
+          <Link
+            to='/board'
+          >
+            <h1>Kanban Board</h1>
+          </Link>
         </div>
-        
-        <div className="header-right">
-          <div className="user-menu" ref={menuRef}>
-            <button 
-              onClick={toggleMenu} 
-              className="user-menu-button"
+
+        <div className='header-right'>
+          <div className='user-menu' ref={menuRef}>
+            <button
+              onClick={toggleMenu}
+              className='user-menu-button'
               aria-expanded={isMenuOpen}
             >
-              <span className="user-name">{user?.name}さん</span>
-              <span className="hamburger-icon">
+              <span className='user-name'>{user?.name}さん</span>
+              <span className='hamburger-icon'>
                 <span></span>
                 <span></span>
                 <span></span>
               </span>
             </button>
-            
+
             {isMenuOpen && (
-              <div className="dropdown-menu">
-                <Link 
-                  to="/board" 
-                  className={`dropdown-link ${isActive('/board') ? 'active' : ''}`}
+              <div className='dropdown-menu'>
+                <Link
+                  to='/board'
+                  className={`dropdown-link ${
+                    isActive('/board') ? 'active' : ''
+                  }`}
                   onClick={closeMenu}
                 >
-                  <span className="menu-icon">📋</span>
+                  <span className='menu-icon'>📋</span>
                   ボード
                 </Link>
-                <Link 
-                  to="/dashboard" 
-                  className={`dropdown-link ${isActive('/dashboard') ? 'active' : ''}`}
+                <Link
+                  to='/dashboard'
+                  className={`dropdown-link ${
+                    isActive('/dashboard') ? 'active' : ''
+                  }`}
                   onClick={closeMenu}
                 >
-                  <span className="menu-icon">📊</span>
+                  <span className='menu-icon'>📊</span>
                   ダッシュボード
                 </Link>
-                <Link 
-                  to="/profile" 
-                  className={`dropdown-link ${isActive('/profile') ? 'active' : ''}`}
+                <Link
+                  to='/profile'
+                  className={`dropdown-link ${
+                    isActive('/profile') ? 'active' : ''
+                  }`}
                   onClick={closeMenu}
                 >
-                  <span className="menu-icon">👤</span>
+                  <span className='menu-icon'>👤</span>
                   プロフィール
                 </Link>
-                <div className="dropdown-divider"></div>
-                <button 
-                  onClick={() => { onLogout(); closeMenu(); }} 
-                  className="logout-dropdown-btn"
+                <div className='dropdown-divider'></div>
+                <button
+                  onClick={() => {
+                    onLogout();
+                    closeMenu();
+                  }}
+                  className='logout-dropdown-btn'
                 >
                   ログアウト
                 </button>
@@ -102,9 +115,7 @@ const Layout: React.FC<LayoutProps> = ({ user, onLogout, children }) => {
         </div>
       </header>
 
-      <main className="main-content">
-        {children}
-      </main>
+      <main className='main-content'>{children}</main>
     </div>
   );
 };

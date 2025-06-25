@@ -19,8 +19,7 @@ const KanbanBoard: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [showEditForm, setShowEditForm] = useState(false);
+  const [showForm, setShowForm] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>();
   const [activeTask, setActiveTask] = useState<Task | null>(null);
 
@@ -54,7 +53,7 @@ const KanbanBoard: React.FC = () => {
     try {
       const newTask = await taskApi.createTask(taskData);
       setTasks(prev => [newTask, ...prev]);
-      setShowCreateForm(false);
+      setShowForm(false);
       setError(null);
     } catch (err) {
       setError('Failed to create task');
@@ -88,20 +87,19 @@ const KanbanBoard: React.FC = () => {
 
   const handleEditTask = (task: Task) => {
     setEditingTask(task);
-    setShowEditForm(true);
+    setShowForm(true);
   };
 
   const handleEditSubmit = async (taskData: TaskCreateDto) => {
     if (editingTask) {
       await handleUpdateTask(editingTask.id, taskData);
       setEditingTask(undefined);
-      setShowEditForm(false);
+      setShowForm(false);
     }
   };
 
   const handleFormCancel = () => {
-    setShowCreateForm(false);
-    setShowEditForm(false);
+    setShowForm(false);
     setEditingTask(undefined);
   };
 
@@ -164,7 +162,7 @@ const KanbanBoard: React.FC = () => {
           <div className='header-left'></div>
           <div className='header-right'>
             <button
-              onClick={() => setShowCreateForm(true)}
+              onClick={() => setShowForm(true)}
               className='btn-add-task'
             >
               Add New Task
@@ -208,18 +206,10 @@ const KanbanBoard: React.FC = () => {
             />
           ) : null}
         </DragOverlay>
-        {showCreateForm && (
+        {showForm && (
           <TaskForm
             task={editingTask}
-            modeTitle='Create New Task'
-            onSubmit={editingTask ? handleEditSubmit : handleCreateTask}
-            onCancel={handleFormCancel}
-          />
-        )}
-        {showEditForm && (
-          <TaskForm
-            task={editingTask}
-            modeTitle='Edit Task'
+            modeTitle={editingTask ? 'Edit Task' : 'Create New Task'}
             onSubmit={editingTask ? handleEditSubmit : handleCreateTask}
             onCancel={handleFormCancel}
           />

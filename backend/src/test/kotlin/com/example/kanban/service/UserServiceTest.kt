@@ -2,6 +2,7 @@ package com.example.kanban.service
 
 import com.example.kanban.dto.LoginRequestDto
 import com.example.kanban.dto.UserCreateDto
+import com.example.kanban.dto.UserResponseDto
 import com.example.kanban.model.User
 import com.example.kanban.repository.UserRepository
 import org.junit.jupiter.api.Test
@@ -11,10 +12,11 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito.*
+import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
 import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import java.time.LocalDateTime
-import java.util.Optional
 
 @ExtendWith(MockitoExtension::class)
 class UserServiceTest {
@@ -61,7 +63,7 @@ class UserServiceTest {
     @Test
     fun `findByEmail should return user when exists`() {
         // Given
-        `when`(userRepository.findByEmail(testEmail)).thenReturn(Optional.of(testUser))
+        `when`(userRepository.findByEmail(testEmail)).thenReturn(testUser)
 
         // When
         val result = userService.findByEmail(testEmail)
@@ -76,7 +78,7 @@ class UserServiceTest {
     @Test
     fun `findByEmail should return null when user does not exist`() {
         // Given
-        `when`(userRepository.findByEmail(testEmail)).thenReturn(Optional.empty())
+        `when`(userRepository.findByEmail(testEmail)).thenReturn(null)
 
         // When
         val result = userService.findByEmail(testEmail)
@@ -88,7 +90,7 @@ class UserServiceTest {
     @Test
     fun `findById should return user when exists`() {
         // Given
-        `when`(userRepository.findById(testUserId)).thenReturn(Optional.of(testUser))
+        `when`(userRepository.findById(testUserId)).thenReturn(testUser)
 
         // When
         val result = userService.findById(testUserId)
@@ -103,7 +105,7 @@ class UserServiceTest {
     @Test
     fun `findById should return null when user does not exist`() {
         // Given
-        `when`(userRepository.findById(testUserId)).thenReturn(Optional.empty())
+        `when`(userRepository.findById(testUserId)).thenReturn(null)
 
         // When
         val result = userService.findById(testUserId)
@@ -116,7 +118,7 @@ class UserServiceTest {
     fun `createUser should create user when email does not exist`() {
         // Given
         `when`(userRepository.existsByEmail(testEmail)).thenReturn(false)
-        `when`(userRepository.save(any(User::class.java))).thenReturn(testUser)
+        `when`(userRepository.save(any())).thenReturn(testUser)
 
         // When
         val result = userService.createUser(testUserCreateDto)
@@ -143,7 +145,8 @@ class UserServiceTest {
     @Test
     fun `authenticate should return user when credentials are valid`() {
         // Given
-        `when`(userRepository.findByEmail(testEmail)).thenReturn(Optional.of(testUser))
+        `when`(userRepository.findByEmail(testEmail)).thenReturn(testUser)
+        `when`(userRepository.updateLastLogin(any(), any(), any())).thenReturn(true)
 
         // When
         val result = userService.authenticate(testLoginRequest)
@@ -158,7 +161,7 @@ class UserServiceTest {
     @Test
     fun `authenticate should return null when user does not exist`() {
         // Given
-        `when`(userRepository.findByEmail(testEmail)).thenReturn(Optional.empty())
+        `when`(userRepository.findByEmail(testEmail)).thenReturn(null)
 
         // When
         val result = userService.authenticate(testLoginRequest)
@@ -174,7 +177,7 @@ class UserServiceTest {
             email = testEmail,
             password = "wrongpassword"
         )
-        `when`(userRepository.findByEmail(testEmail)).thenReturn(Optional.of(testUser))
+        `when`(userRepository.findByEmail(testEmail)).thenReturn(testUser)
 
         // When
         val result = userService.authenticate(wrongPasswordRequest)

@@ -7,6 +7,7 @@ import com.example.kanban.model.Task
 import com.example.kanban.model.TaskStatus
 import com.example.kanban.repository.TaskRepository
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
 @Service
@@ -28,6 +29,7 @@ class TaskService(
     }
     
     // ユーザー別のタスク作成
+    @Transactional
     fun createTaskForUser(taskCreateDto: TaskCreateDto, userId: Long): TaskResponseDto {
         val task = Task(
             title = taskCreateDto.title,
@@ -38,6 +40,7 @@ class TaskService(
     }
     
     // ユーザー別のタスク更新
+    @Transactional
     fun updateTaskForUser(id: Long, taskUpdateDto: TaskUpdateDto, userId: Long): TaskResponseDto {
         val existingTask = taskRepository.findByUserIdAndId(userId, id)
             ?: throw IllegalArgumentException("Task not found or access denied for user $userId and task $id")
@@ -53,6 +56,7 @@ class TaskService(
     }
     
     // ユーザー別のタスク削除
+    @Transactional
     fun deleteTaskForUser(id: Long, userId: Long): Boolean {
         if (!taskRepository.existsByUserIdAndId(userId, id)) {
             throw IllegalArgumentException("Task not found or access denied for user $userId and task $id")

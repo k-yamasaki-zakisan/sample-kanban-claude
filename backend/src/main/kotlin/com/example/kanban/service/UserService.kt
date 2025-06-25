@@ -25,8 +25,7 @@ class UserService(
 
     @Transactional
     fun authenticate(loginRequest: LoginRequestDto): UserResponseDto? {
-        val user = userRepository.findByEmail(loginRequest.email)
-            .orElse(null) ?: return null
+        val user = userRepository.findByEmail(loginRequest.email) ?: return null
 
         return if (passwordEncoder.matches(loginRequest.password, user.password)) {
             updateLastLogin(user.id)
@@ -37,15 +36,11 @@ class UserService(
     }
 
     fun findByEmail(email: String): UserResponseDto? {
-        return userRepository.findByEmail(email)
-            .map { convertToDto(it) }
-            .orElse(null)
+        return userRepository.findByEmail(email)?.let { convertToDto(it) }
     }
 
     fun findById(id: Long): UserResponseDto? {
-        return userRepository.findById(id)
-            .map { convertToDto(it) }
-            .orElse(null)
+        return userRepository.findById(id)?.let { convertToDto(it) }
     }
 
     @Transactional

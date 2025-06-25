@@ -19,7 +19,8 @@ const KanbanBoard: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showForm, setShowForm] = useState(false);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>();
   const [activeTask, setActiveTask] = useState<Task | null>(null);
 
@@ -53,7 +54,7 @@ const KanbanBoard: React.FC = () => {
     try {
       const newTask = await taskApi.createTask(taskData);
       setTasks(prev => [newTask, ...prev]);
-      setShowForm(false);
+      setShowCreateForm(false);
       setError(null);
     } catch (err) {
       setError('Failed to create task');
@@ -87,19 +88,20 @@ const KanbanBoard: React.FC = () => {
 
   const handleEditTask = (task: Task) => {
     setEditingTask(task);
-    setShowForm(true);
+    setShowEditForm(true);
   };
 
   const handleEditSubmit = async (taskData: TaskCreateDto) => {
     if (editingTask) {
       await handleUpdateTask(editingTask.id, taskData);
       setEditingTask(undefined);
-      setShowForm(false);
+      setShowEditForm(false);
     }
   };
 
   const handleFormCancel = () => {
-    setShowForm(false);
+    setShowCreateForm(false);
+    setShowEditForm(false);
     setEditingTask(undefined);
   };
 
@@ -152,29 +154,34 @@ const KanbanBoard: React.FC = () => {
   }
 
   return (
-    <DndContext 
-      sensors={sensors} 
+    <DndContext
+      sensors={sensors}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="kanban-board">
-        <header className="kanban-header">
-          <div className="header-left"></div>
-          <div className="header-right">
-            <button onClick={() => setShowForm(true)} className="btn-add-task">
+      <div className='kanban-board'>
+        <header className='kanban-header'>
+          <div className='header-left'></div>
+          <div className='header-right'>
+            <button
+              onClick={() => setShowCreateForm(true)}
+              className='btn-add-task'
+            >
               Add New Task
             </button>
           </div>
         </header>
 
         {error && (
-          <div className="error-message">
+          <div className='error-message'>
             {error}
-            <button onClick={() => setError(null)} className="error-close">×</button>
+            <button onClick={() => setError(null)} className='error-close'>
+              ×
+            </button>
           </div>
         )}
 
-        <div className="kanban-columns">
+        <div className='kanban-columns'>
           {Object.values(TaskStatus).map(status => (
             <DroppableColumn
               key={status}
@@ -201,10 +208,18 @@ const KanbanBoard: React.FC = () => {
             />
           ) : null}
         </DragOverlay>
-
-        {showForm && (
+        {showCreateForm && (
           <TaskForm
             task={editingTask}
+            modeTitle='Create New Task'
+            onSubmit={editingTask ? handleEditSubmit : handleCreateTask}
+            onCancel={handleFormCancel}
+          />
+        )}
+        {showEditForm && (
+          <TaskForm
+            task={editingTask}
+            modeTitle='Edit Task'
             onSubmit={editingTask ? handleEditSubmit : handleCreateTask}
             onCancel={handleFormCancel}
           />

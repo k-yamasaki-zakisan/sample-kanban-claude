@@ -4,16 +4,22 @@ import './TaskForm.css';
 
 interface TaskFormProps {
   task?: Task;
+  modeTitle: string;
   onSubmit: (taskData: TaskCreateDto) => void;
   onCancel: () => void;
 }
 
-const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
+const TaskForm: React.FC<TaskFormProps> = ({
+  task,
+  modeTitle,
+  onSubmit,
+  onCancel,
+}) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [fieldErrors, setFieldErrors] = useState({
     title: '',
-    description: ''
+    description: '',
   });
 
   useEffect(() => {
@@ -26,7 +32,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
   const validateForm = () => {
     const errors = {
       title: '',
-      description: ''
+      description: '',
     };
 
     if (!title.trim()) {
@@ -47,7 +53,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
     e.preventDefault();
     setFieldErrors({
       title: '',
-      description: ''
+      description: '',
     });
 
     if (!validateForm()) {
@@ -69,41 +75,46 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
   };
 
   return (
-    <div className="task-form-overlay" onClick={handleOverlayClick}>
-      <div className="task-form-modal">
-        <form onSubmit={handleSubmit} className="task-form" noValidate>
-          <h2>{task ? 'Edit Task' : 'Create New Task'}</h2>
-          
-          <div className="form-group">
-            <label htmlFor="title">Title *</label>
+    <div className='task-form-overlay' onClick={handleOverlayClick}>
+      <div className='task-form-modal'>
+        <form onSubmit={handleSubmit} className='task-form' noValidate>
+          <h2>{modeTitle}</h2>
+          <div className='form-group'>
+            <label htmlFor='title'>Title *</label>
             <input
-              type="text"
-              id="title"
+              type='text'
+              id='title'
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter task title"
+              onChange={e => setTitle(e.target.value)}
+              placeholder='Enter task title'
               required
             />
-            {fieldErrors.title && <div className="field-error-message">{fieldErrors.title}</div>}
+            {fieldErrors.title && (
+              <div className='field-error-message'>{fieldErrors.title}</div>
+            )}
           </div>
 
-          <div className="form-group">
-            <label htmlFor="description">Description</label>
+          <div className='form-group'>
+            <label htmlFor='description'>Description</label>
             <textarea
-              id="description"
+              id='description'
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Enter task description (optional)"
+              onChange={e => setDescription(e.target.value)}
+              placeholder='Enter task description (optional)'
               rows={4}
             />
-            {fieldErrors.description && <div className="field-error-message">{fieldErrors.description}</div>}
+            {fieldErrors.description && (
+              <div className='field-error-message'>
+                {fieldErrors.description}
+              </div>
+            )}
           </div>
 
-          <div className="form-actions">
-            <button type="button" onClick={onCancel} className="btn-cancel">
+          <div className='form-actions'>
+            <button type='button' onClick={onCancel} className='btn-cancel'>
               Cancel
             </button>
-            <button type="submit" className="btn-submit">
+            <button type='submit' className='btn-submit'>
               {task ? 'Update' : 'Create'}
             </button>
           </div>

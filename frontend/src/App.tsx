@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter } from 'react-router-dom';
 import AppRouter from './components/AppRouter';
 import { User } from './types/Task';
 import './App.css';
@@ -48,17 +47,15 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
-      <div className='App'>
-        <AppRouter
-          isAuthenticated={isAuthenticated}
-          user={user}
-          onLogin={handleLogin}
-          onRegister={handleRegister}
-          onLogout={handleLogout}
-        />
-      </div>
-    </BrowserRouter>
+    <div className='App'>
+      <AppRouter
+        isAuthenticated={isAuthenticated}
+        user={user}
+        onLogin={handleLogin}
+        onRegister={handleRegister}
+        onLogout={handleLogout}
+      />
+    </div>
   );
 }
 

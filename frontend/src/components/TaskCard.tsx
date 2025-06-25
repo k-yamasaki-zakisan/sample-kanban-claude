@@ -55,6 +55,16 @@ const TaskCard: React.FC<TaskCardProps> = ({
     }
   };
 
+  const truncateDescription = (text: string, maxLength = 100): string => {
+    if (!text) {
+      return '';
+    }
+    if (text.length <= maxLength) {
+      return text;
+    }
+    return `${text.substring(0, maxLength)  }...`;
+  };
+
   return (
     <div 
       ref={setNodeRef}
@@ -75,7 +85,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
         </div>
       </div>
       {task.description && (
-        <p className="task-description">{task.description}</p>
+        <p className="task-description">{truncateDescription(task.description)}</p>
       )}
       <div className="task-footer">
         <select

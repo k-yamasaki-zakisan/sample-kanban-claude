@@ -8,6 +8,11 @@
   transition: box-shadow 0.2s ease, transform 0.2s ease;
   cursor: grab;
   user-select: none;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .task-card:hover {
@@ -42,11 +47,17 @@
   font-weight: 600;
   color: #2c3e50;
   flex: 1;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  margin-right: 8px;
 }
 
 .task-actions {
   display: flex;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .btn-edit, .btn-delete {
@@ -81,6 +92,12 @@
   color: #7f8c8d;
   font-size: 0.9em;
   line-height: 1.4;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  white-space: pre-wrap;
+  max-width: 100%;
 }
 
 .task-footer {

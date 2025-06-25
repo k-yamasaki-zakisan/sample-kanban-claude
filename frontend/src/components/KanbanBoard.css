@@ -154,7 +154,7 @@
   
   .kanban-header {
     grid-template-columns: 1fr;
-    justify-items: center;
+    justify-items: right;
   }
   
   .header-left {

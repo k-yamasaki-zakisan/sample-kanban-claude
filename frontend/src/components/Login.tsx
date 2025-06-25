@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { User } from '../types/Task';
 import './Login.css';
 
 interface LoginProps {
   onLogin: (user: User) => void;
-  onShowRegister: () => void;
 }
 
-const Login: React.FC<LoginProps> = ({ onLogin, onShowRegister }) => {
+const Login: React.FC<LoginProps> = ({ onLogin }) => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -35,6 +36,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, onShowRegister }) => {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
         onLogin(data.user);
+        navigate('/');
       } else {
         setError('ログインに失敗しました。メールアドレスとパスワードを確認してください。');
       }
@@ -77,9 +79,9 @@ const Login: React.FC<LoginProps> = ({ onLogin, onShowRegister }) => {
         </form>
         <div className="register-link">
           <span>アカウントをお持ちでない方は</span>
-          <button type="button" onClick={onShowRegister} className="link-button">
+          <Link to="/register" className="link-button">
             新規登録はこちら
-          </button>
+          </Link>
         </div>
       </div>
     </div>

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import KanbanBoard from './components/KanbanBoard';
-import Login from './components/Login';
-import Register from './components/Register';
+import { BrowserRouter } from 'react-router-dom';
+import AppRouter from './components/AppRouter';
 import { User } from './types/Task';
 import './App.css';
 
@@ -9,7 +8,6 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [showRegister, setShowRegister] = useState(false);
 
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
@@ -31,21 +29,11 @@ function App() {
   const handleLogin = (user: User) => {
     setUser(user);
     setIsAuthenticated(true);
-    setShowRegister(false);
   };
 
   const handleRegister = (user: User) => {
     setUser(user);
     setIsAuthenticated(true);
-    setShowRegister(false);
-  };
-
-  const handleShowRegister = () => {
-    setShowRegister(true);
-  };
-
-  const handleBackToLogin = () => {
-    setShowRegister(false);
   };
 
   const handleLogout = () => {
@@ -60,29 +48,17 @@ function App() {
   }
 
   return (
-    <div className='App'>
-      {isAuthenticated ? (
-        <>
-          <header className='app-header'>
-            <h1>Kanban Board</h1>
-            <div className='user-info'>
-              <span>{user?.name}さん</span>
-              <button onClick={handleLogout} className='logout-btn'>
-                ログアウト
-              </button>
-            </div>
-          </header>
-          <KanbanBoard />
-        </>
-      ) : showRegister ? (
-        <Register
+    <BrowserRouter>
+      <div className='App'>
+        <AppRouter
+          isAuthenticated={isAuthenticated}
+          user={user}
+          onLogin={handleLogin}
           onRegister={handleRegister}
-          onBackToLogin={handleBackToLogin}
+          onLogout={handleLogout}
         />
-      ) : (
-        <Login onLogin={handleLogin} onShowRegister={handleShowRegister} />
-      )}
-    </div>
+      </div>
+    </BrowserRouter>
   );
 }
 

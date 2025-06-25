@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { User } from '../types/Task';
 import './Register.css';
 
 interface RegisterProps {
   onRegister: (user: User) => void;
-  onBackToLogin: () => void;
 }
 
-const Register: React.FC<RegisterProps> = ({ onRegister, onBackToLogin }) => {
+const Register: React.FC<RegisterProps> = ({ onRegister }) => {
+  const navigate = useNavigate();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -88,6 +89,7 @@ const Register: React.FC<RegisterProps> = ({ onRegister, onBackToLogin }) => {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
         onRegister(data.user);
+        navigate('/');
       } else {
         const errorData = await response.json().catch(() => null);
         if (response.status === 409) {
@@ -169,9 +171,9 @@ const Register: React.FC<RegisterProps> = ({ onRegister, onBackToLogin }) => {
         </form>
         <div className="login-link">
           <span>既にアカウントをお持ちですか？</span>
-          <button type="button" onClick={onBackToLogin} className="link-button">
+          <Link to="/login" className="link-button">
             ログインはこちら
-          </button>
+          </Link>
         </div>
       </div>
     </div>

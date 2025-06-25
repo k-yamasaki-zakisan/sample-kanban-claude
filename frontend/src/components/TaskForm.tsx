@@ -11,6 +11,10 @@ interface TaskFormProps {
 const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({
+    title: '',
+    description: ''
+  });
 
   useEffect(() => {
     if (task) {
@@ -19,16 +23,43 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
     }
   }, [task]);
 
+  const validateForm = () => {
+    const errors = {
+      title: '',
+      description: ''
+    };
+
+    if (!title.trim()) {
+      errors.title = 'タイトルは必須です。';
+    } else if (title.trim().length > 100) {
+      errors.title = 'タイトルは100文字以内で入力してください。';
+    }
+
+    if (description.trim().length > 500) {
+      errors.description = '説明は500文字以内で入力してください。';
+    }
+
+    setFieldErrors(errors);
+    return !errors.title && !errors.description;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (title.trim()) {
-      onSubmit({
-        title: title.trim(),
-        description: description.trim() || undefined,
-      });
-      setTitle('');
-      setDescription('');
+    setFieldErrors({
+      title: '',
+      description: ''
+    });
+
+    if (!validateForm()) {
+      return;
     }
+
+    onSubmit({
+      title: title.trim(),
+      description: description.trim() || undefined,
+    });
+    setTitle('');
+    setDescription('');
   };
 
   const handleOverlayClick = (e: React.MouseEvent) => {
@@ -53,6 +84,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
               placeholder="Enter task title"
               required
             />
+            {fieldErrors.title && <div className="field-error-message">{fieldErrors.title}</div>}
           </div>
 
           <div className="form-group">
@@ -64,6 +96,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
               placeholder="Enter task description (optional)"
               rows={4}
             />
+            {fieldErrors.description && <div className="field-error-message">{fieldErrors.description}</div>}
           </div>
 
           <div className="form-actions">

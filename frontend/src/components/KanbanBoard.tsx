@@ -159,10 +159,12 @@ const KanbanBoard: React.FC = () => {
     >
       <div className="kanban-board">
         <header className="kanban-header">
-          <h1>Kanban Board</h1>
-          <button onClick={() => setShowForm(true)} className="btn-add-task">
-            Add New Task
-          </button>
+          <div className="header-left"></div>
+          <div className="header-right">
+            <button onClick={() => setShowForm(true)} className="btn-add-task">
+              Add New Task
+            </button>
+          </div>
         </header>
 
         {error && (

@@ -1,24 +1,28 @@
 .kanban-board {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 10px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .kanban-header {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 8fr 2fr;
   align-items: center;
   margin-bottom: 30px;
   padding-bottom: 20px;
   border-bottom: 2px solid #ecf0f1;
+  gap: 20px;
 }
 
-.kanban-header h1 {
-  margin: 0;
-  color: #2c3e50;
-  font-size: 2.5em;
-  font-weight: 300;
+.header-left {
+  /* 8割の左側エリア - 現在は空 */
+}
+
+.header-right {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 }
 
 .btn-add-task {
@@ -149,13 +153,12 @@
   }
   
   .kanban-header {
-    flex-direction: column;
-    gap: 15px;
-    text-align: center;
+    grid-template-columns: 1fr;
+    justify-items: center;
   }
   
-  .kanban-header h1 {
-    font-size: 2em;
+  .header-left {
+    display: none;
   }
   
   .kanban-columns {

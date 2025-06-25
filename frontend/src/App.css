@@ -22,10 +22,12 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+  flex-shrink: 0;
 }
 
 .user-info span {
   color: #555;
+  white-space: nowrap;
 }
 
 .logout-btn {

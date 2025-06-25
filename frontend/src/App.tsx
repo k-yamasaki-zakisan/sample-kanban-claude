@@ -60,20 +60,25 @@ function App() {
   }
 
   return (
-    <div className="App">
+    <div className='App'>
       {isAuthenticated ? (
         <>
-          <header className="app-header">
+          <header className='app-header'>
             <h1>Kanban Board</h1>
-            <div className="user-info">
+            <div className='user-info'>
               <span>{user?.name}さん</span>
-              <button onClick={handleLogout} className="logout-btn">ログアウト</button>
+              <button onClick={handleLogout} className='logout-btn'>
+                ログアウト
+              </button>
             </div>
           </header>
           <KanbanBoard />
         </>
       ) : showRegister ? (
-        <Register onRegister={handleRegister} onBackToLogin={handleBackToLogin} />
+        <Register
+          onRegister={handleRegister}
+          onBackToLogin={handleBackToLogin}
+        />
       ) : (
         <Login onLogin={handleLogin} onShowRegister={handleShowRegister} />
       )}

@@ -43,7 +43,8 @@ class SecurityConfig {
             }
             .authorizeHttpRequests { authz ->
                 authz
-                    .requestMatchers("/api/auth/**").permitAll()
+                    .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/logout").permitAll()
+                    .requestMatchers("/api/auth/me").authenticated()
                     .requestMatchers("/actuator/health").permitAll()
                     .requestMatchers("/api/tasks/**").authenticated()
                     .anyRequest().authenticated()

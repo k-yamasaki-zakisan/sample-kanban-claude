@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Task, TaskCreateDto, TaskUpdateDto, TaskStatus } from '../types/Task';
+import { Task, TaskCreateDto, TaskUpdateDto, TaskStatus, User, UserUpdateDto } from '../types/Task';
 
 // ログアウト処理のコールバック関数を保存する変数
 let logoutCallback: (() => void) | null = null;
@@ -23,14 +23,22 @@ api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+    console.log('API Request:', config.method?.toUpperCase(), config.url, 'with token:', token);
+  } else {
+    console.log('API Request:', config.method?.toUpperCase(), config.url, 'without token');
   }
   return config;
 });
 
 // Interceptor to handle authentication errors
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('API Response:', response.status, response.config?.method?.toUpperCase(), response.config?.url);
+    return response;
+  },
   (error) => {
+    console.error('API Error:', error.response?.status, error.config?.method?.toUpperCase(), error.config?.url, 'Error:', error.response?.data);
+    
     if (error.response?.status === 401 || error.response?.status === 403) {
       // JWTトークンの期限切れまたは認証エラー
       const errorMessage = error.response?.status === 403 
@@ -94,6 +102,18 @@ export const taskApi = {
 
   getTasksByStatus: async (status: TaskStatus): Promise<Task[]> => {
     const response = await api.get<Task[]>(`/tasks/status/${status}`);
+    return response.data;
+  },
+};
+
+export const userApi = {
+  updateUser: async (updateData: UserUpdateDto): Promise<User> => {
+    const response = await api.put<User>('/auth/me', updateData);
+    return response.data;
+  },
+
+  getCurrentUser: async (): Promise<User> => {
+    const response = await api.get<User>('/auth/me');
     return response.data;
   },
 };

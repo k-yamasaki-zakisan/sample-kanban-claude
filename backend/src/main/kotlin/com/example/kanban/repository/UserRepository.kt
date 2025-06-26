@@ -12,6 +12,7 @@ interface UserRepository {
     fun findByEmail(email: String): User?
     fun existsByEmail(email: String): Boolean
     fun updateLastLogin(id: Long, lastLogin: LocalDateTime, updatedAt: LocalDateTime): Boolean
+    fun updateProfile(id: Long, name: String?, email: String?): User?
     fun findActiveUsersOrderByLastLogin(): List<User>
     fun countActiveUsers(): Long
     fun findUsersRegisteredInPeriod(startDate: LocalDateTime, endDate: LocalDateTime): List<User>

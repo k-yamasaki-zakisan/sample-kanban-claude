@@ -66,6 +66,25 @@ class UserService(
         userRepository.updateLastLogin(userId, now, now)
     }
 
+    @Transactional
+    fun updateUser(userId: Long, userUpdateDto: UserUpdateDto): UserResponseDto? {
+        // メールアドレスが変更される場合、重複チェック
+        if (userUpdateDto.email != null) {
+            val existingUser = userRepository.findByEmail(userUpdateDto.email)
+            if (existingUser != null && existingUser.id != userId) {
+                throw IllegalArgumentException("Email already exists")
+            }
+        }
+
+        val updatedUser = userRepository.updateProfile(
+            id = userId,
+            name = userUpdateDto.name,
+            email = userUpdateDto.email
+        ) ?: return null
+
+        return convertToDto(updatedUser)
+    }
+
     private fun convertToDto(user: User): UserResponseDto {
         return UserResponseDto(
             id = user.id,

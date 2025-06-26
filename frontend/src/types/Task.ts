@@ -33,3 +33,8 @@ export interface User {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface UserUpdateDto {
+  name?: string;
+  email?: string;
+}

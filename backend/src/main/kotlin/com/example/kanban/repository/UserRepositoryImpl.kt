@@ -69,6 +69,18 @@ class UserRepositoryImpl : UserRepository {
         return updatedRows > 0
     }
     
+    override fun updateProfile(id: Long, name: String?, email: String?): User? {
+        val user = findById(id) ?: return null
+        
+        val updatedUser = user.copy(
+            name = name ?: user.name,
+            email = email ?: user.email,
+            updatedAt = LocalDateTime.now()
+        )
+        
+        return entityManager.merge(updatedUser)
+    }
+    
     override fun findActiveUsersOrderByLastLogin(): List<User> {
         val jpql = """
             SELECT u FROM User u 

@@ -42,6 +42,29 @@ class AuthController(
         return ResponseEntity.ok(user)
     }
 
+    @PutMapping("/me")
+    fun updateCurrentUser(
+        @Valid @RequestBody userUpdateDto: UserUpdateDto,
+        authentication: Authentication
+    ): ResponseEntity<out Any> {
+        val currentUser = authentication.principal as? UserResponseDto
+            ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
+
+        return try {
+            val updatedUser = userService.updateUser(currentUser.id, userUpdateDto)
+                ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ErrorResponseDto("User not found"))
+
+            ResponseEntity.ok(updatedUser)
+        } catch (e: IllegalArgumentException) {
+            ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ErrorResponseDto(e.message ?: "Update failed"))
+        } catch (e: Exception) {
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ErrorResponseDto("Internal server error"))
+        }
+    }
+
     @PostMapping("/register")
     fun register(@Valid @RequestBody userCreateDto: UserCreateDto): ResponseEntity<out Any> {
         return try {

@@ -14,6 +14,7 @@ interface AppRouterProps {
   onLogin: (user: User) => void;
   onRegister: (user: User) => void;
   onLogout: () => void;
+  onUserUpdate: (user: User) => void;
 }
 
 const AppRouter: React.FC<AppRouterProps> = ({
@@ -22,6 +23,7 @@ const AppRouter: React.FC<AppRouterProps> = ({
   onLogin,
   onRegister,
   onLogout,
+  onUserUpdate,
 }) => {
   const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
@@ -60,7 +62,7 @@ const AppRouter: React.FC<AppRouterProps> = ({
                 <Routes>
                   <Route path="/board" element={<KanbanBoard />} />
                   <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/profile" element={<Profile user={user} />} />
+                  <Route path="/profile" element={<Profile user={user} onUserUpdate={onUserUpdate} />} />
                   <Route path="/" element={<Navigate to="/board" replace />} />
                   <Route path="*" element={<Navigate to="/board" replace />} />
                 </Routes>

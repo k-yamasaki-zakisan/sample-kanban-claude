@@ -49,6 +49,10 @@ const AppWithNotification: React.FC = () => {
     navigate('/login');
   }, [navigate]);
 
+  const handleUserUpdate = (updatedUser: User) => {
+    setUser(updatedUser);
+  };
+
   // APIインターセプターにコールバックを設定
   useEffect(() => {
     setLogoutCallback(handleLogout);
@@ -69,6 +73,7 @@ const AppWithNotification: React.FC = () => {
         onLogin={handleLogin}
         onRegister={handleRegister}
         onLogout={handleLogout}
+        onUserUpdate={handleUserUpdate}
       />
       <NotificationContainer />
     </div>

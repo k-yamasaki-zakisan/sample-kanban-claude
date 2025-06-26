@@ -30,11 +30,11 @@ class JwtAuthenticationFilter(
         }
 
         val token = authHeader.substring(7)
-        val email = jwtService.extractEmail(token)
+        val userId = jwtService.extractUserId(token)
 
-        if (email != null && SecurityContextHolder.getContext().authentication == null) {
+        if (userId != null && SecurityContextHolder.getContext().authentication == null) {
             if (jwtService.validateToken(token)) {
-                val user = userService.findByEmail(email)
+                val user = userService.findById(userId)
                 if (user != null) {
                     val authToken = UsernamePasswordAuthenticationToken(
                         user,

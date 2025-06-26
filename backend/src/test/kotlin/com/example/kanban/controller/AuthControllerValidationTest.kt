@@ -2,16 +2,19 @@ package com.example.kanban.controller
 
 import com.example.kanban.dto.LoginRequestDto
 import com.example.kanban.dto.UserCreateDto
+import com.example.kanban.dto.UserUpdateDto
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import org.springframework.transaction.annotation.Transactional
 
@@ -176,5 +179,109 @@ class AuthControllerValidationTest {
                 .content(objectMapper.writeValueAsString(loginRequest))
         )
             .andExpect(status().isUnauthorized)
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(username = "test@example.com")
+    fun `プロフィール更新時の無効な名前でバリデーションエラーが返される`() {
+        val userUpdateDto = UserUpdateDto(
+            name = "",  // 空の名前
+            email = "updated@example.com"
+        )
+
+        mockMvc.perform(
+            put("/api/auth/me")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userUpdateDto))
+        )
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.message").value("入力値にエラーがあります"))
+            .andExpect(jsonPath("$.errors").isArray)
+            .andExpect(jsonPath("$.errors[?(@.field == 'name')].message").value("ユーザー名は1文字以上100文字以内で入力してください"))
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(username = "test@example.com")
+    fun `プロフィール更新時の無効なメールアドレス形式でバリデーションエラーが返される`() {
+        val userUpdateDto = UserUpdateDto(
+            name = "更新されたユーザー",
+            email = "invalid-email"  // 無効なメール形式
+        )
+
+        mockMvc.perform(
+            put("/api/auth/me")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userUpdateDto))
+        )
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.message").value("入力値にエラーがあります"))
+            .andExpect(jsonPath("$.errors").isArray)
+            .andExpect(jsonPath("$.errors[?(@.field == 'email')].message").value("正しいメールアドレス形式で入力してください"))
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(username = "test@example.com")
+    fun `プロフィール更新時の長いメールアドレスでバリデーションエラーが返される`() {
+        val longEmail = "a".repeat(250) + "@example.com"  // 255文字以上のメール
+        val userUpdateDto = UserUpdateDto(
+            name = "更新されたユーザー",
+            email = longEmail
+        )
+
+        mockMvc.perform(
+            put("/api/auth/me")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userUpdateDto))
+        )
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.message").value("入力値にエラーがあります"))
+            .andExpect(jsonPath("$.errors").isArray)
+            .andExpect(jsonPath("$.errors[?(@.field == 'email' && @.message == 'メールアドレスは255文字以内で入力してください')]").exists())
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(username = "test@example.com")
+    fun `プロフィール更新時の長い名前でバリデーションエラーが返される`() {
+        val longName = "a".repeat(101)  // 100文字以上の名前
+        val userUpdateDto = UserUpdateDto(
+            name = longName,
+            email = "updated@example.com"
+        )
+
+        mockMvc.perform(
+            put("/api/auth/me")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userUpdateDto))
+        )
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.message").value("入力値にエラーがあります"))
+            .andExpect(jsonPath("$.errors").isArray)
+            .andExpect(jsonPath("$.errors[?(@.field == 'name')].message").value("ユーザー名は1文字以上100文字以内で入力してください"))
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(username = "test@example.com")
+    fun `プロフィール更新時の複数のバリデーションエラーが同時に返される`() {
+        val userUpdateDto = UserUpdateDto(
+            name = "",  // 空の名前
+            email = "invalid-email"  // 無効なメール形式
+        )
+
+        mockMvc.perform(
+            put("/api/auth/me")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userUpdateDto))
+        )
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.message").value("入力値にエラーがあります"))
+            .andExpect(jsonPath("$.errors").isArray)
+            .andExpect(jsonPath("$.errors.length()").value(2))
+            .andExpect(jsonPath("$.errors[?(@.field == 'name')].message").value("ユーザー名は1文字以上100文字以内で入力してください"))
+            .andExpect(jsonPath("$.errors[?(@.field == 'email')].message").value("正しいメールアドレス形式で入力してください"))
     }
 }

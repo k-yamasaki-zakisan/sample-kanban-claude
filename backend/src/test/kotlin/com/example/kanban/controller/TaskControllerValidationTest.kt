@@ -2,17 +2,16 @@ package com.example.kanban.controller
 
 import com.example.kanban.dto.TaskCreateDto
 import com.example.kanban.dto.TaskUpdateDto
-import com.example.kanban.dto.UserCreateDto
+import com.example.kanban.dto.UserResponseDto
 import com.example.kanban.model.TaskStatus
-import com.example.kanban.service.JwtService
-import com.example.kanban.service.UserService
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.web.servlet.MockMvc
@@ -20,6 +19,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -32,36 +32,28 @@ class TaskControllerValidationTest {
 
     @Autowired
     private lateinit var objectMapper: ObjectMapper
-
-    @Autowired
-    private lateinit var jwtService: JwtService
-
-    @Autowired
-    private lateinit var userService: UserService
-
-    private lateinit var testUserEmail: String
-    private var testUserId: Long = 0L
-
-    @BeforeEach
-    @Transactional
-    fun setUp() {
-        testUserEmail = "test${System.currentTimeMillis()}@example.com"
-        val userCreateDto = UserCreateDto(
+    
+    private fun setupAuthentication() {
+        val mockUser = UserResponseDto(
+            id = 1L,
             name = "Test User",
-            email = testUserEmail,
-            password = "password123"
+            email = "test@example.com",
+            lastLogin = null,
+            createdAt = LocalDateTime.now(),
+            updatedAt = LocalDateTime.now()
         )
-        val user = userService.createUser(userCreateDto)
-        testUserId = user.id
-    }
-
-    private fun createTestToken(): String {
-        return jwtService.generateToken(testUserEmail, testUserId)
+        val authentication = UsernamePasswordAuthenticationToken(
+            mockUser,
+            null,
+            emptyList()
+        )
+        SecurityContextHolder.getContext().authentication = authentication
     }
 
     @Test
     @Transactional
     fun `タスク作成時の空のタイトルでバリデーションエラーが返される`() {
+        setupAuthentication()
         val taskCreateDto = TaskCreateDto(
             title = "",
             description = "テスト説明"
@@ -69,7 +61,6 @@ class TaskControllerValidationTest {
 
         mockMvc.perform(
             post("/api/tasks")
-                .header("Authorization", "Bearer ${createTestToken()}")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(taskCreateDto))
         )
@@ -82,6 +73,7 @@ class TaskControllerValidationTest {
     @Test
     @Transactional
     fun `タスク作成時の長いタイトルでバリデーションエラーが返される`() {
+        setupAuthentication()
         val longTitle = "a".repeat(201)  // 200文字以上のタイトル
         val taskCreateDto = TaskCreateDto(
             title = longTitle,
@@ -90,7 +82,6 @@ class TaskControllerValidationTest {
 
         mockMvc.perform(
             post("/api/tasks")
-                .header("Authorization", "Bearer ${createTestToken()}")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(taskCreateDto))
         )
@@ -103,6 +94,7 @@ class TaskControllerValidationTest {
     @Test
     @Transactional
     fun `タスク作成時の長い説明でバリデーションエラーが返される`() {
+        setupAuthentication()
         val longDescription = "a".repeat(1001)  // 1000文字以上の説明
         val taskCreateDto = TaskCreateDto(
             title = "テストタスク",
@@ -111,7 +103,6 @@ class TaskControllerValidationTest {
 
         mockMvc.perform(
             post("/api/tasks")
-                .header("Authorization", "Bearer ${createTestToken()}")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(taskCreateDto))
         )
@@ -124,6 +115,7 @@ class TaskControllerValidationTest {
     @Test
     @Transactional
     fun `タスク作成時の複数のバリデーションエラーが同時に返される`() {
+        setupAuthentication()
         val longTitle = "a".repeat(201)
         val longDescription = "b".repeat(1001)
         val taskCreateDto = TaskCreateDto(
@@ -133,7 +125,6 @@ class TaskControllerValidationTest {
 
         mockMvc.perform(
             post("/api/tasks")
-                .header("Authorization", "Bearer ${createTestToken()}")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(taskCreateDto))
         )
@@ -146,6 +137,7 @@ class TaskControllerValidationTest {
     @Test
     @Transactional
     fun `タスク作成時の有効な入力で成功する`() {
+        setupAuthentication()
         val taskCreateDto = TaskCreateDto(
             title = "有効なタスクタイトル",
             description = "有効な説明文"
@@ -153,7 +145,6 @@ class TaskControllerValidationTest {
 
         mockMvc.perform(
             post("/api/tasks")
-                .header("Authorization", "Bearer ${createTestToken()}")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(taskCreateDto))
         )
@@ -165,6 +156,7 @@ class TaskControllerValidationTest {
     @Test
     @Transactional
     fun `タスク更新時の長いタイトルでバリデーションエラーが返される`() {
+        setupAuthentication()
         val longTitle = "a".repeat(201)
         val taskUpdateDto = TaskUpdateDto(
             title = longTitle,
@@ -174,7 +166,6 @@ class TaskControllerValidationTest {
 
         mockMvc.perform(
             put("/api/tasks/1")
-                .header("Authorization", "Bearer ${createTestToken()}")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(taskUpdateDto))
         )
@@ -187,6 +178,7 @@ class TaskControllerValidationTest {
     @Test
     @Transactional
     fun `タスク更新時の長い説明でバリデーションエラーが返される`() {
+        setupAuthentication()
         val longDescription = "a".repeat(1001)
         val taskUpdateDto = TaskUpdateDto(
             title = "更新されたタイトル",
@@ -196,7 +188,6 @@ class TaskControllerValidationTest {
 
         mockMvc.perform(
             put("/api/tasks/1")
-                .header("Authorization", "Bearer ${createTestToken()}")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(taskUpdateDto))
         )
@@ -209,6 +200,7 @@ class TaskControllerValidationTest {
     @Test
     @Transactional
     fun `認証なしでタスク作成すると403が返される`() {
+        // Don't setup authentication for this test
         val taskCreateDto = TaskCreateDto(
             title = "認証なしタスク",
             description = "認証なし説明"
@@ -225,6 +217,7 @@ class TaskControllerValidationTest {
     @Test
     @Transactional
     fun `無効なJWTトークンでタスク作成すると403が返される`() {
+        // Don't setup authentication for this test
         val taskCreateDto = TaskCreateDto(
             title = "無効トークンタスク",
             description = "無効トークン説明"
@@ -242,9 +235,9 @@ class TaskControllerValidationTest {
     @Test
     @Transactional
     fun `タスク作成時の空のリクエストボディでJSONパースエラーが返される`() {
+        setupAuthentication()
         mockMvc.perform(
             post("/api/tasks")
-                .header("Authorization", "Bearer ${createTestToken()}")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{}")
         )

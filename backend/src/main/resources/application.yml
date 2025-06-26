@@ -3,9 +3,8 @@ spring:
   application:
     name: kanban-backend
   jpa:
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+    # Hibernateが自動的にデータベース方言を検出するため、明示的な指定は不要
+    open-in-view: false
   flyway:
     enabled: true
     baseline-on-migrate: true

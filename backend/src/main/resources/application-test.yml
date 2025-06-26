@@ -11,6 +11,7 @@ spring:
     show-sql: false
     properties:
       hibernate:
+        # H2データベース用の方言（Hibernateが自動検出するが明示的に指定）
         dialect: org.hibernate.dialect.H2Dialect
         format_sql: false
   h2:

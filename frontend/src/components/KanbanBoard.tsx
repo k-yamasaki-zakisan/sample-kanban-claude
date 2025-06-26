@@ -10,12 +10,14 @@ import {
 } from '@dnd-kit/core';
 import { Task, TaskStatus, TaskCreateDto, TaskUpdateDto } from '../types/Task';
 import { taskApi } from '../services/api';
+import { useNotification } from '../contexts/NotificationContext';
 import TaskCard from './TaskCard';
 import TaskForm from './TaskForm';
 import DroppableColumn from './DroppableColumn';
 import './KanbanBoard.css';
 
 const KanbanBoard: React.FC = () => {
+  const { addNotification } = useNotification();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -55,17 +57,22 @@ const KanbanBoard: React.FC = () => {
       setTasks(prev => [newTask, ...prev]);
       setShowForm(false);
       setError(null);
+      addNotification(`タスク「${newTask.title}」を作成しました`, 'success');
     } catch (err) {
       setError('Failed to create task');
       console.error('Error creating task:', err);
     }
   };
 
-  const handleUpdateTask = async (id: number, updates: TaskUpdateDto) => {
+  const handleUpdateTask = async (id: number, updates: TaskUpdateDto, showNotification = false) => {
     try {
       const updatedTask = await taskApi.updateTask(id, updates);
       setTasks(prev => prev.map(task => task.id === id ? updatedTask : task));
       setError(null);
+      
+      if (showNotification) {
+        addNotification(`タスク「${updatedTask.title}」を更新しました`, 'success');
+      }
     } catch (err) {
       setError('Failed to update task');
       console.error('Error updating task:', err);
@@ -73,11 +80,15 @@ const KanbanBoard: React.FC = () => {
   };
 
   const handleDeleteTask = async (id: number) => {
+    const taskToDelete = tasks.find(task => task.id === id);
     if (window.confirm('Are you sure you want to delete this task?')) {
       try {
         await taskApi.deleteTask(id);
         setTasks(prev => prev.filter(task => task.id !== id));
         setError(null);
+        if (taskToDelete) {
+          addNotification(`タスク「${taskToDelete.title}」を削除しました`, 'success');
+        }
       } catch (err) {
         setError('Failed to delete task');
         console.error('Error deleting task:', err);
@@ -92,7 +103,7 @@ const KanbanBoard: React.FC = () => {
 
   const handleEditSubmit = async (taskData: TaskCreateDto) => {
     if (editingTask) {
-      await handleUpdateTask(editingTask.id, taskData);
+      await handleUpdateTask(editingTask.id, taskData, true);
       setEditingTask(undefined);
       setShowForm(false);
     }

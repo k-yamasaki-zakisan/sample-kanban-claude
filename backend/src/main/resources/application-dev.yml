@@ -1,0 +1,30 @@
+# 開発環境専用設定
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/kanban_db
+    driver-class-name: org.postgresql.Driver
+    username: kanban_user
+    password: kanban_password
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  devtools:
+    restart:
+      enabled: true
+      additional-paths: src/main
+      exclude: static/**,public/**
+    livereload:
+      enabled: true
+
+# 開発環境用ログレベル
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.boot.devtools: DEBUG
+    com.example.kanban: DEBUG
+    root: INFO

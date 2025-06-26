@@ -45,7 +45,7 @@ class SecurityConfig {
                 authz
                     .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/logout").permitAll()
                     .requestMatchers("/api/auth/me").authenticated()
-                    .requestMatchers("/actuator/health").permitAll()
+                    .requestMatchers("/actuator/health", "/api/healthcheck").permitAll()
                     .requestMatchers("/api/tasks/**").authenticated()
                     .anyRequest().authenticated()
             }

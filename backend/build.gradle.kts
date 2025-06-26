@@ -25,6 +25,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.flywaydb:flyway-core")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -37,6 +38,7 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.mockito:mockito-core")
     testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")
+    testRuntimeOnly("com.h2database:h2")
 }
 
 tasks.withType<KotlinCompile> {
@@ -48,4 +50,27 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+// DevTools設定
+configurations {
+    developmentOnly
+    runtimeClasspath {
+        extendsFrom(developmentOnly.get())
+    }
+}
+
+// Spring Boot DevToolsのためのbootRun設定（開発環境のみ）
+tasks.withType<org.springframework.boot.gradle.tasks.run.BootRun> {
+    // 開発環境でのみDevToolsを有効化
+    val isDevelopment = project.hasProperty("development") || 
+                       System.getProperty("spring.profiles.active") == "dev" ||
+                       System.getenv("SPRING_PROFILES_ACTIVE") == "dev"
+    
+    if (isDevelopment) {
+        jvmArgs = listOf(
+            "-Dspring.devtools.restart.enabled=true",
+            "-Dspring.devtools.livereload.enabled=true"
+        )
+    }
 }

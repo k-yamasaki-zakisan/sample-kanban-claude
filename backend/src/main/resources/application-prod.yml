@@ -13,6 +13,12 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: false
+  # DevToolsを明示的に無効化（本番環境）
+  devtools:
+    restart:
+      enabled: false
+    livereload:
+      enabled: false
 
 server:
   port: ${PORT:8080}

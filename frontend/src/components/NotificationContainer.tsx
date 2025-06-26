@@ -2,7 +2,7 @@ import React from 'react';
 import { useNotification } from '../contexts/NotificationContext';
 import './NotificationContainer.css';
 
-const NotificationContainer: React.FC = () => {
+const NotificationContainer: React.FC = React.memo(() => {
   const { notifications, removeNotification } = useNotification();
 
   if (notifications.length === 0) {
@@ -27,6 +27,8 @@ const NotificationContainer: React.FC = () => {
       ))}
     </div>
   );
-};
+});
+
+NotificationContainer.displayName = 'NotificationContainer';
 
 export default NotificationContainer;

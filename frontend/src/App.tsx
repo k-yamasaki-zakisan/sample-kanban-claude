@@ -56,10 +56,15 @@ const AppWithNotification: React.FC = () => {
   // APIインターセプターにコールバックを設定
   useEffect(() => {
     setLogoutCallback(handleLogout);
+  }, [handleLogout]);
+
+  // エラー通知コールバックは一度だけ設定
+  useEffect(() => {
     setErrorNotificationCallback((message: string) => {
+      // addNotificationを直接呼び出すのではなく、contextから取得
       addNotification(message, 'error');
     });
-  }, [handleLogout, addNotification]);
+  }, [addNotification]);
 
   if (isLoading) {
     return <div className="loading">読み込み中...</div>;

@@ -56,6 +56,11 @@ data class UserUpdateDto(
     val email: String? = null
 )
 
+data class UserUpdateResponseDto(
+    val user: UserResponseDto,
+    val token: String
+)
+
 data class ErrorResponseDto(
     val error: String
 )

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Task, TaskCreateDto, TaskUpdateDto, TaskStatus, User, UserUpdateDto } from '../types/Task';
+import { Task, TaskCreateDto, TaskUpdateDto, TaskStatus, User, UserUpdateDto, UserUpdateResponse } from '../types/Task';
 
 // ログアウト処理のコールバック関数を保存する変数
 let logoutCallback: (() => void) | null = null;
@@ -103,8 +103,18 @@ export const taskApi = {
 
 export const userApi = {
   updateUser: async (updateData: UserUpdateDto): Promise<User> => {
-    const response = await api.put<User>('/auth/me', updateData);
-    return response.data;
+    const response = await api.put<UserUpdateResponse>('/auth/me', updateData);
+    
+    // 新しいJWTトークンをlocalStorageに保存
+    if (response.data.token) {
+      localStorage.setItem('token', response.data.token);
+      
+      // 次のリクエストで新しいトークンが使用されるように、
+      // axiosのデフォルトヘッダーを更新
+      api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+    }
+    
+    return response.data.user;
   },
 
   getCurrentUser: async (): Promise<User> => {

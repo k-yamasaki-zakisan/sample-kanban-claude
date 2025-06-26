@@ -55,7 +55,11 @@ class AuthController(
                 ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(ErrorResponseDto("User not found"))
 
-            ResponseEntity.ok(updatedUser)
+            // ユーザー情報が更新されたので新しいJWTトークンを生成
+            val newToken = jwtService.generateToken(updatedUser.email, updatedUser.id)
+            val updateResponse = UserUpdateResponseDto(user = updatedUser, token = newToken)
+
+            ResponseEntity.ok(updateResponse)
         } catch (e: IllegalArgumentException) {
             ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ErrorResponseDto(e.message ?: "Update failed"))

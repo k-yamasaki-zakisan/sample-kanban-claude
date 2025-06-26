@@ -38,3 +38,8 @@ export interface UserUpdateDto {
   name?: string;
   email?: string;
 }
+
+export interface UserUpdateResponse {
+  user: User;
+  token: string;
+}

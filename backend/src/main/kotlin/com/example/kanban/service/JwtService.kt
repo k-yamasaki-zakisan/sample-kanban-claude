@@ -24,8 +24,8 @@ class JwtService {
         val expiryDate = Date(now.time + jwtExpiration)
 
         return Jwts.builder()
-            .subject(email)
-            .claim("userId", userId)
+            .subject(userId.toString())
+            .claim("email", email)
             .issuedAt(now)
             .expiration(expiryDate)
             .signWith(secretKey)
@@ -47,7 +47,7 @@ class JwtService {
     fun extractEmail(token: String): String? {
         return try {
             val claims = extractAllClaims(token)
-            claims.subject
+            claims.get("email", String::class.java)
         } catch (e: Exception) {
             null
         }
@@ -56,7 +56,7 @@ class JwtService {
     fun extractUserId(token: String): Long? {
         return try {
             val claims = extractAllClaims(token)
-            claims.get("userId", Long::class.java)
+            claims.subject.toLongOrNull()
         } catch (e: Exception) {
             null
         }

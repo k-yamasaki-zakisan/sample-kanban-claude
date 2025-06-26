@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useCallback, useMemo, useRef } from 'react';
 
 interface Notification {
   id: string;
@@ -6,18 +6,30 @@ interface Notification {
   type: 'info' | 'error' | 'success';
 }
 
-interface NotificationContextType {
-  notifications: Notification[];
+interface NotificationActionsContextType {
   addNotification: (message: string, type?: 'info' | 'error' | 'success') => void;
+}
+
+interface NotificationStateContextType {
+  notifications: Notification[];
   removeNotification: (id: string) => void;
 }
 
-const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
+const NotificationActionsContext = createContext<NotificationActionsContextType | undefined>(undefined);
+const NotificationStateContext = createContext<NotificationStateContextType | undefined>(undefined);
 
 export const useNotification = () => {
-  const context = useContext(NotificationContext);
+  const context = useContext(NotificationActionsContext);
   if (!context) {
     throw new Error('useNotification must be used within a NotificationProvider');
+  }
+  return context;
+};
+
+export const useNotificationState = () => {
+  const context = useContext(NotificationStateContext);
+  if (!context) {
+    throw new Error('useNotificationState must be used within a NotificationProvider');
   }
   return context;
 };
@@ -28,8 +40,14 @@ interface NotificationProviderProps {
 
 export const NotificationProvider: React.FC<NotificationProviderProps> = ({ children }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const removeTimeoutsRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
   const removeNotification = useCallback((id: string) => {
+    const timeout = removeTimeoutsRef.current.get(id);
+    if (timeout) {
+      clearTimeout(timeout);
+      removeTimeoutsRef.current.delete(id);
+    }
     setNotifications(prev => prev.filter(notification => notification.id !== id));
   }, []);
 
@@ -40,20 +58,29 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     setNotifications(prev => [...prev, notification]);
     
     // 5秒後に自動削除
-    setTimeout(() => {
+    const timeout = setTimeout(() => {
       removeNotification(id);
     }, 5000);
+    
+    removeTimeoutsRef.current.set(id, timeout);
   }, [removeNotification]);
 
-  const value = useMemo(() => ({
+  // アクションのContextは通知状態の変更に影響されない
+  const actionsValue = useMemo(() => ({
+    addNotification
+  }), [addNotification]);
+
+  // 状態のContextは通知の表示コンポーネントのみが使用
+  const stateValue = useMemo(() => ({
     notifications,
-    addNotification,
     removeNotification
-  }), [notifications, addNotification, removeNotification]);
+  }), [notifications, removeNotification]);
 
   return (
-    <NotificationContext.Provider value={value}>
-      {children}
-    </NotificationContext.Provider>
+    <NotificationActionsContext.Provider value={actionsValue}>
+      <NotificationStateContext.Provider value={stateValue}>
+        {children}
+      </NotificationStateContext.Provider>
+    </NotificationActionsContext.Provider>
   );
 };

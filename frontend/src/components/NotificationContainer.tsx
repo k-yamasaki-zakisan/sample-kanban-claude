@@ -1,9 +1,9 @@
 import React from 'react';
-import { useNotification } from '../contexts/NotificationContext';
+import { useNotificationState } from '../contexts/NotificationContext';
 import './NotificationContainer.css';
 
 const NotificationContainer: React.FC = React.memo(() => {
-  const { notifications, removeNotification } = useNotification();
+  const { notifications, removeNotification } = useNotificationState();
 
   if (notifications.length === 0) {
     return null;

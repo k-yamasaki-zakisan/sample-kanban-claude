@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   postgres:
-    image: postgres:17-alpine
+    image: postgres:17
     container_name: kanban-postgres
     environment:
       POSTGRES_DB: kanban_db
@@ -34,6 +34,25 @@ services:
       - postgres
     restart: unless-stopped
 
+  postgres-test:
+    image: postgres:17
+    container_name: kanban-postgres-test
+    environment:
+      POSTGRES_DB: kanban_db_test
+      POSTGRES_USER: kanban_user
+      POSTGRES_PASSWORD: kanban_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kanban_user -d kanban_db_test"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   pgweb:
     image: sosedoff/pgweb:latest
     container_name: kanban-pgweb
@@ -47,4 +66,5 @@ services:
 
 volumes:
   postgres_data:
+  postgres_test_data:
   pgadmin_data:

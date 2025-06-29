@@ -1,22 +1,21 @@
 # テスト用の設定
 spring:
   datasource:
-    url: jdbc:h2:mem:testdb
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: 
+    # ローカル開発時: localhost:5433/kanban_db_test (Docker)
+    # GitHub Actions: localhost:5432/kanban_db_test (services)
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/kanban_db_test}
+    driver-class-name: org.postgresql.Driver
+    username: ${SPRING_DATASOURCE_USERNAME:kanban_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:kanban_password}
   jpa:
     hibernate:
       ddl-auto: create-drop
     show-sql: false
     properties:
       hibernate:
-        # H2データベース用の方言（Hibernateが自動検出するが明示的に指定）
-        dialect: org.hibernate.dialect.H2Dialect
+        # PostgreSQLデータベース用の方言
+        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: false
-  h2:
-    console:
-      enabled: false
   # DevToolsを無効化（テスト環境）
   devtools:
     restart:

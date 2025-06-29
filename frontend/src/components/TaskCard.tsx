@@ -3,10 +3,8 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import rehypeHighlight from 'rehype-highlight';
 import { Task, TaskStatus } from '../types/Task';
 import './TaskCard.css';
-import '../styles/highlight.css';
 
 interface TaskCardProps {
   task: Task;
@@ -59,29 +57,16 @@ const TaskCard: React.FC<TaskCardProps> = ({
     }
   };
 
-  const truncateMarkdown = (text: string, maxLength = 100): string => {
+  const truncateText = (text: string, maxLength = 100): string => {
     if (!text) {
       return '';
     }
-    // Remove markdown syntax for truncation purposes
-    const plainText = text
-      .replace(/#{1,6}\s+/g, '') // Remove headers
-      .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold
-      .replace(/\*(.*?)\*/g, '$1') // Remove italic
-      .replace(/`(.*?)`/g, '$1') // Remove inline code
-      .replace(/\[(.*?)\]\(.*?\)/g, '$1') // Remove links, keep text
-      .replace(/```[\s\S]*?```/g, '[code block]') // Replace code blocks
-      .replace(/>\s+(.*)/g, '$1') // Remove blockquotes
-      .replace(/[-*+]\s+/g, '') // Remove list markers
-      .replace(/\n+/g, ' ') // Replace newlines with spaces
-      .trim();
     
-    if (plainText.length <= maxLength) {
-      return text; // Return original markdown if within limit
+    if (text.length <= maxLength) {
+      return text;
     }
     
-    // If too long, truncate the plain text and add ellipsis
-    return `${plainText.substring(0, maxLength)}...`;
+    return `${text.substring(0, maxLength)}...`;
   };
 
   return (
@@ -105,33 +90,11 @@ const TaskCard: React.FC<TaskCardProps> = ({
       </div>
       {task.description && (
         <div className="task-description">
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
-            rehypePlugins={[rehypeHighlight]}
-            components={{
-              // Customize components for compact display
-              h1: ({children}) => <h4>{children}</h4>,
-              h2: ({children}) => <h5>{children}</h5>,
-              h3: ({children}) => <h6>{children}</h6>,
-              h4: ({children}) => <h6>{children}</h6>,
-              h5: ({children}) => <h6>{children}</h6>,
-              h6: ({children}) => <h6>{children}</h6>,
-              p: ({children}) => <span className="markdown-paragraph">{children}</span>,
-              code: ({children, ...props}) => {
-                const inline = !props.className?.includes('language-');
-                return inline ? 
-                  <code className="markdown-inline-code">{children}</code> : 
-                  <pre className="markdown-code-block"><code>{children}</code></pre>;
-              },
-              blockquote: ({children}) => <div className="markdown-blockquote">{children}</div>,
-              ul: ({children}) => <ul className="markdown-list">{children}</ul>,
-              ol: ({children}) => <ol className="markdown-list">{children}</ol>,
-              li: ({children}) => <li className="markdown-list-item">{children}</li>,
-              a: ({href, children}) => <a href={href} target="_blank" rel="noopener noreferrer" className="markdown-link">{children}</a>,
-            }}
-          >
-            {truncateMarkdown(task.description)}
-          </ReactMarkdown>
+          <div className="markdown-content-card">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {truncateText(task.description)}
+            </ReactMarkdown>
+          </div>
         </div>
       )}
       <div className="task-footer">

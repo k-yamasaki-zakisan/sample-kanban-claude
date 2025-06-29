@@ -99,13 +99,52 @@
   max-width: 100%;
 }
 
-/* Markdown styling for TaskCard */
-.task-description .markdown-paragraph {
-  display: inline;
-  margin: 0;
+
+/* Markdown content in cards */
+.markdown-content-card {
+  font-size: 0.9em;
+  line-height: 1.4;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
-.task-description .markdown-inline-code {
+.markdown-content-card * {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.markdown-content-card h1,
+.markdown-content-card h2,
+.markdown-content-card h3,
+.markdown-content-card h4,
+.markdown-content-card h5,
+.markdown-content-card h6 {
+  margin: 4px 0 2px 0;
+  font-weight: 600;
+  color: #24292e;
+  font-size: 0.95em;
+}
+
+.markdown-content-card p {
+  margin: 2px 0;
+  display: block;
+}
+
+.markdown-content-card strong {
+  font-weight: 600;
+}
+
+.markdown-content-card em {
+  font-style: italic;
+}
+
+.markdown-content-card br {
+  display: block;
+  content: "";
+  margin-top: 4px;
+}
+
+.markdown-content-card code {
   background-color: #f1f2f6;
   padding: 2px 4px;
   border-radius: 3px;
@@ -114,7 +153,7 @@
   color: #e74c3c;
 }
 
-.task-description .markdown-code-block {
+.markdown-content-card pre {
   background-color: #f8f9fa;
   border: 1px solid #e1e4e8;
   border-radius: 4px;
@@ -126,7 +165,13 @@
   color: #24292e;
 }
 
-.task-description .markdown-blockquote {
+.markdown-content-card pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+}
+
+.markdown-content-card blockquote {
   border-left: 3px solid #dfe2e5;
   padding-left: 8px;
   margin: 4px 0;
@@ -134,31 +179,23 @@
   font-style: italic;
 }
 
-.task-description .markdown-list {
+.markdown-content-card ul,
+.markdown-content-card ol {
   margin: 4px 0;
   padding-left: 16px;
 }
 
-.task-description .markdown-list-item {
+.markdown-content-card li {
   margin: 2px 0;
 }
 
-.task-description .markdown-link {
+.markdown-content-card a {
   color: #0366d6;
   text-decoration: none;
 }
 
-.task-description .markdown-link:hover {
+.markdown-content-card a:hover {
   text-decoration: underline;
-}
-
-.task-description h4,
-.task-description h5,
-.task-description h6 {
-  margin: 4px 0 2px 0;
-  font-weight: 600;
-  color: #24292e;
-  font-size: 0.95em;
 }
 
 .task-footer {

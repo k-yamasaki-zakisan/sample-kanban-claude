@@ -18,8 +18,11 @@
     "axios": "^1.10.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-markdown": "^10.1.0",
     "react-router-dom": "^6.30.1",
     "react-scripts": "5.0.1",
+    "rehype-highlight": "^7.0.2",
+    "remark-gfm": "^4.0.1",
     "typescript": "^4.9.5",
     "web-vitals": "^2.1.4"
   },
@@ -42,7 +45,10 @@
       "node_modules/(?!axios)"
     ],
     "moduleNameMapper": {
-      "^axios$": "axios/dist/node/axios.cjs"
+      "^axios$": "axios/dist/node/axios.cjs",
+      "^react-markdown$": "<rootDir>/src/__mocks__/react-markdown.tsx",
+      "^remark-gfm$": "<rootDir>/src/__mocks__/remark-gfm.ts",
+      "^rehype-highlight$": "<rootDir>/src/__mocks__/rehype-highlight.ts"
     }
   },
   "browserslist": {

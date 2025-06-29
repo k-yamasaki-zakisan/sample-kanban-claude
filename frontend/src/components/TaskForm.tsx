@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeHighlight from 'rehype-highlight';
 import { Task, TaskCreateDto } from '../types/Task';
 import './TaskForm.css';
+import '../styles/highlight.css';
 
 interface TaskFormProps {
   task?: Task;
@@ -17,6 +21,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
 }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [showPreview, setShowPreview] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({
     title: '',
     description: '',
@@ -95,19 +100,71 @@ const TaskForm: React.FC<TaskFormProps> = ({
           </div>
 
           <div className='form-group'>
-            <label htmlFor='description'>Description</label>
-            <textarea
-              id='description'
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-              placeholder='Enter task description (optional)'
-              rows={4}
-            />
+            <div className='description-header'>
+              <label htmlFor='description'>Description (Markdown supported)</label>
+              <div className='description-tabs'>
+                <button 
+                  type='button' 
+                  className={`tab-button ${!showPreview ? 'active' : ''}`}
+                  onClick={() => setShowPreview(false)}
+                >
+                  Write
+                </button>
+                <button 
+                  type='button' 
+                  className={`tab-button ${showPreview ? 'active' : ''}`}
+                  onClick={() => setShowPreview(true)}
+                  disabled={!description.trim()}
+                >
+                  Preview
+                </button>
+              </div>
+            </div>
+            
+            {!showPreview ? (
+              <textarea
+                id='description'
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+                placeholder='Enter task description using Markdown syntax (optional)&#10;&#10;Examples:&#10;**Bold text**&#10;*Italic text*&#10;`Code`&#10;- List item&#10;[Link](https://example.com)&#10;&#10;```javascript&#10;console.log("Code block");&#10;```'
+                rows={6}
+                className='markdown-textarea'
+              />
+            ) : (
+              <div className='markdown-preview'>
+                {description.trim() ? (
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    rehypePlugins={[rehypeHighlight]}
+                    components={{
+                      a: ({href, children}) => (
+                        <a href={href} target="_blank" rel="noopener noreferrer">
+                          {children}
+                        </a>
+                      ),
+                    }}
+                  >
+                    {description}
+                  </ReactMarkdown>
+                ) : (
+                  <div className='preview-placeholder'>
+                    Nothing to preview
+                  </div>
+                )}
+              </div>
+            )}
+            
             {fieldErrors.description && (
               <div className='field-error-message'>
                 {fieldErrors.description}
               </div>
             )}
+            
+            <div className='markdown-help'>
+              <small>
+                You can use Markdown syntax: **bold**, *italic*, `code`, [links](url), lists, and code blocks
+              </small>
+            </div>
           </div>
 
           <div className='form-actions'>

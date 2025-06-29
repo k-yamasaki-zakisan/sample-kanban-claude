@@ -15,7 +15,7 @@
   background: white;
   border-radius: 8px;
   padding: 24px;
-  max-width: 500px;
+  max-width: 700px;
   width: 90%;
   max-height: 90vh;
   overflow-y: auto;
@@ -106,4 +106,179 @@
 
 .btn-submit:hover {
   background-color: #229954;
+}
+
+/* Markdown form styling */
+.description-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.description-tabs {
+  display: flex;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.tab-button {
+  padding: 6px 12px;
+  border: none;
+  background-color: #f8f9fa;
+  color: #6c757d;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  border-right: 1px solid #ddd;
+}
+
+.tab-button:last-child {
+  border-right: none;
+}
+
+.tab-button:hover:not(:disabled) {
+  background-color: #e9ecef;
+}
+
+.tab-button.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.tab-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.markdown-textarea {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  resize: vertical;
+  min-height: 120px;
+}
+
+.markdown-preview {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 12px;
+  min-height: 120px;
+  background-color: #fafafa;
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-y: auto;
+}
+
+.preview-placeholder {
+  color: #6c757d;
+  font-style: italic;
+  text-align: center;
+  padding: 20px;
+}
+
+.markdown-help {
+  margin-top: 8px;
+  color: #6c757d;
+}
+
+/* Markdown content styling in preview */
+.markdown-preview h1,
+.markdown-preview h2,
+.markdown-preview h3,
+.markdown-preview h4,
+.markdown-preview h5,
+.markdown-preview h6 {
+  margin: 16px 0 8px 0;
+  font-weight: 600;
+  color: #24292e;
+}
+
+.markdown-preview h1 { font-size: 1.5em; }
+.markdown-preview h2 { font-size: 1.4em; }
+.markdown-preview h3 { font-size: 1.3em; }
+.markdown-preview h4 { font-size: 1.2em; }
+.markdown-preview h5 { font-size: 1.1em; }
+.markdown-preview h6 { font-size: 1em; }
+
+.markdown-preview p {
+  margin: 8px 0;
+  color: #24292e;
+}
+
+.markdown-preview code {
+  background-color: #f1f2f6;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.9em;
+  color: #e74c3c;
+}
+
+.markdown-preview pre {
+  background-color: #f8f9fa;
+  border: 1px solid #e1e4e8;
+  border-radius: 6px;
+  padding: 12px;
+  margin: 12px 0;
+  overflow-x: auto;
+}
+
+.markdown-preview pre code {
+  background: none;
+  padding: 0;
+  color: #24292e;
+  font-size: 0.9em;
+}
+
+.markdown-preview blockquote {
+  border-left: 4px solid #dfe2e5;
+  padding-left: 16px;
+  margin: 12px 0;
+  color: #6a737d;
+  font-style: italic;
+}
+
+.markdown-preview ul,
+.markdown-preview ol {
+  margin: 8px 0;
+  padding-left: 24px;
+}
+
+.markdown-preview li {
+  margin: 4px 0;
+}
+
+.markdown-preview a {
+  color: #0366d6;
+  text-decoration: none;
+}
+
+.markdown-preview a:hover {
+  text-decoration: underline;
+}
+
+.markdown-preview table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 12px 0;
+}
+
+.markdown-preview th,
+.markdown-preview td {
+  border: 1px solid #dfe2e5;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.markdown-preview th {
+  background-color: #f6f8fa;
+  font-weight: 600;
+}
+
+.markdown-preview hr {
+  border: none;
+  border-top: 1px solid #e1e4e8;
+  margin: 16px 0;
 }

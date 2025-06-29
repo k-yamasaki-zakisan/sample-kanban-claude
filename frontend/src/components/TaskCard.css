@@ -96,8 +96,69 @@
   word-wrap: break-word;
   word-break: break-word;
   hyphens: auto;
-  white-space: pre-wrap;
   max-width: 100%;
+}
+
+/* Markdown styling for TaskCard */
+.task-description .markdown-paragraph {
+  display: inline;
+  margin: 0;
+}
+
+.task-description .markdown-inline-code {
+  background-color: #f1f2f6;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.85em;
+  color: #e74c3c;
+}
+
+.task-description .markdown-code-block {
+  background-color: #f8f9fa;
+  border: 1px solid #e1e4e8;
+  border-radius: 4px;
+  padding: 8px;
+  margin: 4px 0;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.8em;
+  overflow-x: auto;
+  color: #24292e;
+}
+
+.task-description .markdown-blockquote {
+  border-left: 3px solid #dfe2e5;
+  padding-left: 8px;
+  margin: 4px 0;
+  color: #6a737d;
+  font-style: italic;
+}
+
+.task-description .markdown-list {
+  margin: 4px 0;
+  padding-left: 16px;
+}
+
+.task-description .markdown-list-item {
+  margin: 2px 0;
+}
+
+.task-description .markdown-link {
+  color: #0366d6;
+  text-decoration: none;
+}
+
+.task-description .markdown-link:hover {
+  text-decoration: underline;
+}
+
+.task-description h4,
+.task-description h5,
+.task-description h6 {
+  margin: 4px 0 2px 0;
+  font-weight: 600;
+  color: #24292e;
+  font-size: 0.95em;
 }
 
 .task-footer {

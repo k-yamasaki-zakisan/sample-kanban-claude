@@ -104,7 +104,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
     );
     
     if (imageFiles.length > 0) {
-      handleImageUpload(imageFiles as any);
+      handleImageUpload(imageFiles as File[]);
     }
   }, [handleImageUpload]);
 

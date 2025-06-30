@@ -9,4 +9,5 @@ interface MinioServiceInterface {
     fun deleteFile(objectName: String): Boolean
     fun getFileUrl(objectName: String): String
     fun fileExists(objectName: String): Boolean
+    fun downloadFile(objectName: String): InputStream
 }

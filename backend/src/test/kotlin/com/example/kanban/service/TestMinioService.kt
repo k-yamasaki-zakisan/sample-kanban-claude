@@ -33,4 +33,9 @@ class TestMinioService : MinioServiceInterface {
         // テスト環境では常にfalseを返す（新規ファイルとして扱う）
         return false
     }
+    
+    override fun downloadFile(objectName: String): InputStream {
+        // テスト環境では空のInputStreamを返す
+        return java.io.ByteArrayInputStream(ByteArray(0))
+    }
 }

@@ -112,7 +112,7 @@ class MinioService(
         }
     }
 
-    fun downloadFile(objectName: String): InputStream {
+    override fun downloadFile(objectName: String): InputStream {
         return try {
             minioClient.getObject(
                 GetObjectArgs.builder()
@@ -126,7 +126,7 @@ class MinioService(
     }
 
     override fun deleteFile(objectName: String): Boolean {
-        try {
+        return try {
             minioClient.removeObject(
                 RemoveObjectArgs.builder()
                     .bucket(bucketName)
@@ -135,7 +135,7 @@ class MinioService(
             )
             true
         } catch (e: Exception) {
-            throw RuntimeException("Failed to delete file: ${e.message}", e)
+            false
         }
     }
 

@@ -69,10 +69,6 @@ const KanbanBoard: React.FC = () => {
       const updatedTask = await taskApi.updateTask(id, updates);
       setTasks(prev => prev.map(task => task.id === id ? updatedTask : task));
       setError(null);
-      
-      if (showNotification) {
-        addNotification(`タスク「${updatedTask.title}」を更新しました`, 'success');
-      }
     } catch (err) {
       setError('Failed to update task');
       console.error('Error updating task:', err);

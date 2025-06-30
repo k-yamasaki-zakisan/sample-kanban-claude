@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional
 @AutoConfigureMockMvc
 @TestPropertySource(locations = ["classpath:application-test.yml"])
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@org.springframework.test.context.ActiveProfiles("test")
 class GlobalExceptionHandlerTest {
 
     @Autowired

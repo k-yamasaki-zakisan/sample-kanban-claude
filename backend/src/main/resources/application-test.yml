@@ -23,12 +23,14 @@ spring:
     livereload:
       enabled: false
 
-# MinIO設定（テスト環境 - ダミー設定）
-minio:
+# S3/MinIO設定（テスト環境 - ダミー設定）
+s3:
   endpoint: http://localhost:9000
+  region: us-east-1
   access-key: test_user
   secret-key: test_password
   bucket-name: test-bucket
+  path-style-access: true
 
 logging:
   level:

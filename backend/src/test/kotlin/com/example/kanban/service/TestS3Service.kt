@@ -7,16 +7,16 @@ import java.io.InputStream
 
 @Service
 @Profile("test")
-class TestMinioService : MinioServiceInterface {
+class TestS3Service : S3ServiceInterface {
     
     override fun uploadFile(file: MultipartFile, objectName: String): String {
         // テスト環境では実際のアップロードを行わず、ダミーURLを返す
-        return "http://test-minio/test-bucket/$objectName"
+        return "http://test-s3/test-bucket/$objectName"
     }
     
     override fun uploadFile(inputStream: InputStream, objectName: String, contentType: String, size: Long): String {
         // テスト環境では実際のアップロードを行わず、ダミーURLを返す
-        return "http://test-minio/test-bucket/$objectName"
+        return "http://test-s3/test-bucket/$objectName"
     }
     
     override fun deleteFile(objectName: String): Boolean {
@@ -26,7 +26,7 @@ class TestMinioService : MinioServiceInterface {
     
     override fun getFileUrl(objectName: String): String {
         // テスト環境ではダミーURLを返す
-        return "http://test-minio/test-bucket/$objectName"
+        return "http://test-s3/test-bucket/$objectName"
     }
     
     override fun fileExists(objectName: String): Boolean {

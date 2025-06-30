@@ -11,7 +11,7 @@ import java.util.regex.Pattern
 @Service
 class TaskImageService(
     private val taskImageRepository: TaskImageRepository,
-    private val minioService: MinioServiceInterface
+    private val s3Service: S3ServiceInterface
 ) {
 
     @Transactional
@@ -22,8 +22,8 @@ class TaskImageService(
         // Generate unique filename
         val filename = generateFileName(file.originalFilename ?: "image")
         
-        // Upload to MinIO
-        val objectKey = minioService.uploadFile(file, filename)
+        // Upload to S3/MinIO
+        val objectKey = s3Service.uploadFile(file, filename)
 
         // Save to database as temporary
         val taskImage = TaskImage(
@@ -32,7 +32,7 @@ class TaskImageService(
             originalFilename = file.originalFilename ?: "image",
             contentType = file.contentType ?: "application/octet-stream",
             fileSize = file.size,
-            minioObjectKey = objectKey,
+            s3ObjectKey = objectKey,
             uploadOrder = 0,
             isTemporary = true
         )
@@ -77,12 +77,12 @@ class TaskImageService(
         val image = taskImageRepository.findByIdAndUserId(imageId, userId)
             ?: throw IllegalArgumentException("Image not found or access denied")
 
-        // Delete from MinIO
+        // Delete from S3/MinIO
         try {
-            minioService.deleteFile(image.minioObjectKey)
+            s3Service.deleteFile(image.s3ObjectKey)
         } catch (e: Exception) {
             // Log error but continue with database deletion
-            println("Failed to delete file from MinIO: ${e.message}")
+            println("Failed to delete file from S3/MinIO: ${e.message}")
         }
 
         // Delete from database
@@ -93,13 +93,13 @@ class TaskImageService(
     fun deleteTemporaryImages(userId: Long) {
         val temporaryImages = taskImageRepository.findByUserIdAndIsTemporary(userId, true)
         
-        // Delete files from MinIO
+        // Delete files from S3/MinIO
         temporaryImages.forEach { image ->
             try {
-                minioService.deleteFile(image.minioObjectKey)
+                s3Service.deleteFile(image.s3ObjectKey)
             } catch (e: Exception) {
                 // Log error but continue
-                println("Failed to delete file from MinIO: ${e.message}")
+                println("Failed to delete file from S3/MinIO: ${e.message}")
             }
         }
 
@@ -111,7 +111,7 @@ class TaskImageService(
         val image = taskImageRepository.findByIdAndUserId(imageId, userId)
             ?: throw IllegalArgumentException("Image not found or access denied")
 
-        val inputStream = minioService.downloadFile(image.minioObjectKey)
+        val inputStream = s3Service.downloadFile(image.s3ObjectKey)
         val data = inputStream.readAllBytes()
         return Pair(data, image.contentType)
     }
@@ -168,7 +168,7 @@ class TaskImageService(
             contentType = taskImage.contentType,
             fileSize = taskImage.fileSize,
             uploadOrder = taskImage.uploadOrder,
-            imageUrl = minioService.getFileUrl(taskImage.minioObjectKey),
+            imageUrl = s3Service.getFileUrl(taskImage.s3ObjectKey),
             createdAt = taskImage.createdAt
         )
     }

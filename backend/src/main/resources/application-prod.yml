@@ -1,10 +1,10 @@
-# 本番環境用の設定
+# 本番環境設定
 spring:
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/kanban_db}
+    url: ${DATABASE_URL}
     driver-class-name: org.postgresql.Driver
-    username: ${DB_USERNAME:kanban_user}
-    password: ${DB_PASSWORD:kanban_password}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: validate
@@ -13,18 +13,23 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: false
-  # DevToolsを明示的に無効化（本番環境）
   devtools:
     restart:
       enabled: false
     livereload:
       enabled: false
 
-server:
-  port: ${PORT:8080}
+# S3設定（本番環境）
+s3:
+  region: ${AWS_REGION:ap-northeast-1}
+  access-key: ${AWS_ACCESS_KEY_ID}
+  secret-key: ${AWS_SECRET_ACCESS_KEY}
+  bucket-name: ${S3_BUCKET_NAME}
+  path-style-access: false  # 本番環境ではvirtual-hosted-styleを使用
 
 logging:
   level:
     org.hibernate.SQL: WARN
     org.hibernate.type.descriptor.sql.BasicBinder: WARN
     com.example.kanban: INFO
+    root: WARN

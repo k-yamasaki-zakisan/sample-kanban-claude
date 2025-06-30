@@ -3,7 +3,7 @@ package com.example.kanban.service
 import org.springframework.web.multipart.MultipartFile
 import java.io.InputStream
 
-interface MinioServiceInterface {
+interface S3ServiceInterface {
     fun uploadFile(file: MultipartFile, objectName: String): String
     fun uploadFile(inputStream: InputStream, objectName: String, contentType: String, size: Long): String
     fun deleteFile(objectName: String): Boolean

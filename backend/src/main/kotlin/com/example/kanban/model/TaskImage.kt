@@ -25,11 +25,11 @@ data class TaskImage(
     @Column(name = "file_size", nullable = false)
     val fileSize: Long,
 
-    @Column(name = "minio_bucket", nullable = false)
-    val minioBucket: String = "kanban-images",
+    @Column(name = "s3_bucket", nullable = false)
+    val s3Bucket: String = "kanban-images",
 
-    @Column(name = "minio_object_key", nullable = false)
-    val minioObjectKey: String,
+    @Column(name = "s3_object_key", nullable = false)
+    val s3ObjectKey: String,
 
     @Column(name = "upload_order", nullable = false)
     val uploadOrder: Int = 0,

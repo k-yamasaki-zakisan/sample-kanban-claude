@@ -42,7 +42,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
     }, 0);
   }, [value, onChange]);
 
-  const handleImageUpload = useCallback(async (files: FileList) => {
+  const handleImageUpload = useCallback(async (files: FileList | File[]) => {
     if (files.length === 0) return;
 
     const validFiles = Array.from(files).filter(file => {
@@ -104,7 +104,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
     );
     
     if (imageFiles.length > 0) {
-      handleImageUpload(imageFiles as File[]);
+      handleImageUpload(imageFiles);
     }
   }, [handleImageUpload]);
 

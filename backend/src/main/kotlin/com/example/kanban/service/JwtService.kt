@@ -34,12 +34,14 @@ class JwtService {
 
     fun validateToken(token: String): Boolean {
         return try {
-            Jwts.parser()
+            val claims = Jwts.parser()
                 .verifyWith(secretKey)
                 .build()
                 .parseSignedClaims(token)
+            println("JwtService - Token validation successful for subject: ${claims.payload.subject}")
             true
         } catch (e: Exception) {
+            println("JwtService - Token validation failed: ${e.message}")
             false
         }
     }

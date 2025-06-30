@@ -137,4 +137,8 @@ class TaskRepositoryImpl : TaskRepository {
             .setParameter("endDate", endDate)
             .resultList
     }
+
+    override fun findByIdAndUserId(id: Long, userId: Long): Task? {
+        return findByUserIdAndId(userId, id)
+    }
 }

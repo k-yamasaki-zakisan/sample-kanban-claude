@@ -47,6 +47,7 @@ class SecurityConfig {
                     .requestMatchers("/api/auth/me").authenticated()
                     .requestMatchers("/actuator/health", "/api/healthcheck").permitAll()
                     .requestMatchers("/api/tasks/**").authenticated()
+                    .requestMatchers("/api/images/**").authenticated()
                     .anyRequest().authenticated()
             }
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)

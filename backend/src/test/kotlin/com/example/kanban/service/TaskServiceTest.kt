@@ -14,6 +14,7 @@ import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.*
+import org.mockito.Mockito.lenient
 import java.time.LocalDateTime
 
 @ExtendWith(MockitoExtension::class)
@@ -21,6 +22,9 @@ class TaskServiceTest {
 
     @Mock
     private lateinit var taskRepository: TaskRepository
+
+    @Mock
+    private lateinit var taskImageService: TaskImageService
 
     @InjectMocks
     private lateinit var taskService: TaskService
@@ -31,6 +35,11 @@ class TaskServiceTest {
 
     @BeforeEach
     fun setUp() {
+        // Set lenient mode for all mocks
+        lenient().whenever(taskImageService.extractImageIdsFromMarkdown(anyOrNull())).thenReturn(emptyList())
+        lenient().whenever(taskImageService.getUserImages(any(), any())).thenReturn(emptyList())
+        lenient().doNothing().whenever(taskImageService).markImagesAsUsed(any(), any(), any())
+
         testTask = Task(
             id = 1L,
             title = "Test Task",
@@ -40,7 +49,7 @@ class TaskServiceTest {
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now()
         )
-
+        
         testTasks = listOf(
             testTask,
             Task(

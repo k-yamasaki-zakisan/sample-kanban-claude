@@ -24,6 +24,9 @@ class UserServiceTest {
     @Mock
     private lateinit var userRepository: UserRepository
 
+    @Mock
+    private lateinit var jwtService: JwtService
+
     @InjectMocks
     private lateinit var userService: UserService
 

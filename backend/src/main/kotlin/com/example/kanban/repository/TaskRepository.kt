@@ -14,6 +14,7 @@ interface TaskRepository {
     fun findByUserIdOrderByCreatedAtDesc(userId: Long): List<Task>
     fun findByUserIdAndStatus(userId: Long, status: TaskStatus): List<Task>
     fun findByUserIdAndId(userId: Long, id: Long): Task?
+    fun findByIdAndUserId(id: Long, userId: Long): Task?
     fun existsByUserIdAndId(userId: Long, id: Long): Boolean
     fun countByUserId(userId: Long): Long
     fun countByUserIdAndStatus(userId: Long, status: TaskStatus): Long

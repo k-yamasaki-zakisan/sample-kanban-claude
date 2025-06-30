@@ -6,13 +6,15 @@ import com.example.kanban.dto.TaskUpdateDto
 import com.example.kanban.model.Task
 import com.example.kanban.model.TaskStatus
 import com.example.kanban.repository.TaskRepository
+import com.example.kanban.repository.TaskImageRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
 @Service
 class TaskService(
-    private val taskRepository: TaskRepository
+    private val taskRepository: TaskRepository,
+    private val taskImageService: TaskImageService
 ) {
     
     // ユーザー別のタスク一覧取得
@@ -36,7 +38,17 @@ class TaskService(
             description = taskCreateDto.description,
             userId = userId
         )
-        return taskRepository.save(task).toResponseDto()
+        val savedTask = taskRepository.save(task)
+        
+        // descriptionに含まれる画像IDを抽出して永続化
+        if (!taskCreateDto.description.isNullOrBlank()) {
+            val imageIds = taskImageService.extractImageIdsFromMarkdown(taskCreateDto.description)
+            if (imageIds.isNotEmpty()) {
+                taskImageService.markImagesAsUsed(imageIds, userId, taskCreateDto.description)
+            }
+        }
+        
+        return savedTask.toResponseDto()
     }
     
     // ユーザー別のタスク更新
@@ -52,7 +64,17 @@ class TaskService(
             updatedAt = LocalDateTime.now()
         )
         
-        return taskRepository.save(updatedTask).toResponseDto()
+        val savedTask = taskRepository.save(updatedTask)
+        
+        // descriptionが更新された場合、新しい画像IDを処理
+        if (taskUpdateDto.description != null) {
+            val imageIds = taskImageService.extractImageIdsFromMarkdown(taskUpdateDto.description)
+            if (imageIds.isNotEmpty()) {
+                taskImageService.markImagesAsUsed(imageIds, userId, taskUpdateDto.description)
+            }
+        }
+        
+        return savedTask.toResponseDto()
     }
     
     // ユーザー別のタスク削除
@@ -72,13 +94,30 @@ class TaskService(
     }
     
     private fun Task.toResponseDto(): TaskResponseDto {
+        // descriptionから画像IDを抽出
+        val imageIds = if (!this.description.isNullOrBlank()) {
+            taskImageService.extractImageIdsFromMarkdown(this.description)
+        } else {
+            emptyList()
+        }
+        
+        // 抽出した画像IDに基づいて画像情報を取得
+        val images = if (imageIds.isNotEmpty()) {
+            taskImageService.getUserImages(this.userId, includeTemporary = false)
+                .filter { it.id in imageIds }
+                .sortedBy { imageIds.indexOf(it.id) }
+        } else {
+            emptyList()
+        }
+        
         return TaskResponseDto(
             id = this.id,
             title = this.title,
             description = this.description,
             status = this.status,
             createdAt = this.createdAt,
-            updatedAt = this.updatedAt
+            updatedAt = this.updatedAt,
+            images = images
         )
     }
 }

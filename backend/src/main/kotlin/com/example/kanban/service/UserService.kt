@@ -7,11 +7,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import jakarta.servlet.http.HttpServletRequest
 import java.time.LocalDateTime
 
 @Service
 class UserService(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val jwtService: JwtService
 ) {
     
     private val passwordEncoder: PasswordEncoder by lazy {
@@ -83,6 +85,36 @@ class UserService(
         ) ?: return null
 
         return convertToDto(updatedUser)
+    }
+
+    fun getCurrentUserId(request: HttpServletRequest): Long {
+        val authHeader = request.getHeader("Authorization")
+        println("UserService - Auth Header: $authHeader")
+        
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            println("UserService - Invalid auth header")
+            throw IllegalArgumentException("Authorization header is missing or invalid")
+        }
+        
+        val token = authHeader.substring(7)
+        println("UserService - Token: ${token.take(20)}...")
+        
+        val email = jwtService.extractEmail(token)
+        println("UserService - Extracted email: $email")
+        
+        if (email == null) {
+            println("UserService - Invalid token")
+            throw IllegalArgumentException("Invalid token")
+        }
+        
+        val user = userRepository.findByEmail(email)
+        if (user == null) {
+            println("UserService - User not found for email: $email")
+            throw IllegalArgumentException("User not found")
+        }
+        
+        println("UserService - Found user: ${user.id}")
+        return user.id
     }
 
     private fun convertToDto(user: User): UserResponseDto {

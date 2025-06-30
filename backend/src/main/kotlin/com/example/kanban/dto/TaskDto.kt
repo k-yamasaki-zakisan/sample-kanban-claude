@@ -29,5 +29,22 @@ data class TaskResponseDto(
     val description: String?,
     val status: TaskStatus,
     val createdAt: LocalDateTime,
-    val updatedAt: LocalDateTime
+    val updatedAt: LocalDateTime,
+    val images: List<TaskImageDto> = emptyList()
+)
+
+data class TaskImageDto(
+    val id: Long,
+    val filename: String,
+    val originalFilename: String,
+    val contentType: String,
+    val fileSize: Long,
+    val uploadOrder: Int,
+    val imageUrl: String,
+    val createdAt: LocalDateTime
+)
+
+data class ImageUploadRequest(
+    val taskId: Long,
+    val uploadOrder: Int
 )

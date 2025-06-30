@@ -23,18 +23,23 @@ class JwtAuthenticationFilter(
         filterChain: FilterChain
     ) {
         val authHeader = request.getHeader("Authorization")
+        println("JWT Filter - Request: ${request.method} ${request.requestURI}")
+        println("JWT Filter - Auth Header: $authHeader")
         
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            println("JWT Filter - No valid auth header found")
             filterChain.doFilter(request, response)
             return
         }
 
         val token = authHeader.substring(7)
         val userId = jwtService.extractUserId(token)
+        println("JWT Filter - Extracted userId: $userId")
 
         if (userId != null && SecurityContextHolder.getContext().authentication == null) {
             if (jwtService.validateToken(token)) {
                 val user = userService.findById(userId)
+                println("JWT Filter - User found: ${user?.email}")
                 if (user != null) {
                     val authToken = UsernamePasswordAuthenticationToken(
                         user,
@@ -43,8 +48,15 @@ class JwtAuthenticationFilter(
                     )
                     authToken.details = WebAuthenticationDetailsSource().buildDetails(request)
                     SecurityContextHolder.getContext().authentication = authToken
+                    println("JWT Filter - Authentication set successfully")
+                } else {
+                    println("JWT Filter - User not found for userId: $userId")
                 }
+            } else {
+                println("JWT Filter - Token validation failed")
             }
+        } else {
+            println("JWT Filter - UserId is null or authentication already exists")
         }
 
         filterChain.doFilter(request, response)

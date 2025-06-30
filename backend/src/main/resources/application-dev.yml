@@ -21,6 +21,13 @@ spring:
     livereload:
       enabled: true
 
+# MinIO設定（開発環境）
+minio:
+  endpoint: http://localhost:9000
+  access-key: minio_user
+  secret-key: minio_password123
+  bucket-name: kanban-images
+
 # 開発環境用ログレベル
 logging:
   level:

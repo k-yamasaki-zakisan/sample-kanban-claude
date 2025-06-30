@@ -21,20 +21,12 @@ const api = axios.create({
 // Interceptor to add JWT token to requests
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
-  console.log('API Request:', config.method?.toUpperCase(), config.url);
-  console.log('Token exists:', !!token);
   
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-    console.log('Authorization header set:', `${config.headers.Authorization?.substring(0, 20)}...`);
-  } else {
-    console.log('No token found in localStorage');
-  }
+  config.headers.Authorization = `Bearer ${token}`;
 
   // FormDataの場合はContent-Typeを削除してブラウザに自動設定させる
   if (config.data instanceof FormData) {
     delete config.headers['Content-Type'];
-    console.log('FormData detected, Content-Type header removed');
   }
   
   return config;

@@ -5,6 +5,18 @@ export interface Task {
   status: TaskStatus;
   createdAt: string;
   updatedAt: string;
+  images: TaskImage[];
+}
+
+export interface TaskImage {
+  id: number;
+  filename: string;
+  originalFilename: string;
+  contentType: string;
+  fileSize: number;
+  uploadOrder: number;
+  imageUrl: string;
+  createdAt: string;
 }
 
 export enum TaskStatus {

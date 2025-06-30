@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Task, TaskCreateDto, TaskUpdateDto, TaskStatus, User, UserUpdateDto, UserUpdateResponse } from '../types/Task';
+import { Task, TaskCreateDto, TaskUpdateDto, TaskStatus, User, UserUpdateDto, UserUpdateResponse, TaskImage } from '../types/Task';
 
 // ログアウト処理のコールバック関数を保存する変数
 let logoutCallback: (() => void) | null = null;
@@ -21,9 +21,22 @@ const api = axios.create({
 // Interceptor to add JWT token to requests
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
+  console.log('API Request:', config.method?.toUpperCase(), config.url);
+  console.log('Token exists:', !!token);
+  
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+    console.log('Authorization header set:', `${config.headers.Authorization?.substring(0, 20)}...`);
+  } else {
+    console.log('No token found in localStorage');
   }
+
+  // FormDataの場合はContent-Typeを削除してブラウザに自動設定させる
+  if (config.data instanceof FormData) {
+    delete config.headers['Content-Type'];
+    console.log('FormData detected, Content-Type header removed');
+  }
+  
   return config;
 });
 
@@ -120,6 +133,52 @@ export const userApi = {
   getCurrentUser: async (): Promise<User> => {
     const response = await api.get<User>('/auth/me');
     return response.data;
+  },
+};
+
+// Image API
+export const imageApi = {
+  uploadImage: async (file: File): Promise<TaskImage> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const response = await api.post<TaskImage>('/images/upload', formData);
+    return response.data;
+  },
+
+  getUserImages: async (onlyTemporary = false): Promise<TaskImage[]> => {
+    const response = await api.get<TaskImage[]>(`/images/user?temporary=${onlyTemporary}`);
+    return response.data;
+  },
+
+  deleteImage: async (imageId: number): Promise<void> => {
+    await api.delete(`/images/${imageId}`);
+  },
+
+  deleteTemporaryImages: async (): Promise<void> => {
+    await api.delete('/images/temporary');
+  },
+
+  getImageUrl: (imageId: number): string => {
+    return `${api.defaults.baseURL}/images/${imageId}`;
+  },
+
+  // Legacy functions for backward compatibility
+  uploadTaskImage: async (taskId: number, file: File, uploadOrder = 0): Promise<TaskImage> => {
+    return imageApi.uploadImage(file);
+  },
+
+  uploadMultipleTaskImages: async (taskId: number, files: File[]): Promise<TaskImage[]> => {
+    const uploadPromises = files.map(file => imageApi.uploadImage(file));
+    return Promise.all(uploadPromises);
+  },
+
+  getTaskImages: async (taskId: number): Promise<TaskImage[]> => {
+    return imageApi.getUserImages(false);
+  },
+
+  deleteAllTaskImages: async (taskId: number): Promise<void> => {
+    return imageApi.deleteTemporaryImages();
   },
 };
 

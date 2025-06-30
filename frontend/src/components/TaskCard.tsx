@@ -97,6 +97,30 @@ const TaskCard: React.FC<TaskCardProps> = ({
           </div>
         </div>
       )}
+      
+      {task.images && task.images.length > 0 && (
+        <div className="task-images">
+          <div className="task-images-grid">
+            {task.images.slice(0, 4).map((image, index) => (
+              <div key={image.id} className="task-image-thumbnail">
+                <img
+                  src={image.imageUrl}
+                  alt={image.originalFilename}
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                  }}
+                />
+              </div>
+            ))}
+            {task.images.length > 4 && (
+              <div className="task-images-more">
+                +{task.images.length - 4}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
       <div className="task-footer">
         <select
           value={task.status}

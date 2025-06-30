@@ -11,7 +11,7 @@ import java.util.regex.Pattern
 @Service
 class TaskImageService(
     private val taskImageRepository: TaskImageRepository,
-    private val minioService: MinioService
+    private val minioService: MinioServiceInterface
 ) {
 
     @Transactional
@@ -20,7 +20,7 @@ class TaskImageService(
         validateImageFile(file)
 
         // Generate unique filename
-        val filename = minioService.generateFileName(file.originalFilename ?: "image")
+        val filename = generateFileName(file.originalFilename ?: "image")
         
         // Upload to MinIO
         val objectKey = minioService.uploadFile(file, filename)
@@ -149,6 +149,17 @@ class TaskImageService(
         }
     }
 
+    private fun generateFileName(originalFilename: String): String {
+        val timestamp = System.currentTimeMillis()
+        val uuid = java.util.UUID.randomUUID().toString()
+        val extension = originalFilename.substringAfterLast('.', "")
+        return if (extension.isNotEmpty()) {
+            "${timestamp}_${uuid}.${extension}"
+        } else {
+            "${timestamp}_${uuid}"
+        }
+    }
+
     private fun toDto(taskImage: TaskImage): TaskImageDto {
         return TaskImageDto(
             id = taskImage.id,
@@ -157,7 +168,7 @@ class TaskImageService(
             contentType = taskImage.contentType,
             fileSize = taskImage.fileSize,
             uploadOrder = taskImage.uploadOrder,
-            imageUrl = minioService.getPublicUrl(taskImage.minioObjectKey),
+            imageUrl = minioService.getFileUrl(taskImage.minioObjectKey),
             createdAt = taskImage.createdAt
         )
     }

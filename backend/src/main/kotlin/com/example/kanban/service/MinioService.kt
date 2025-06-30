@@ -12,6 +12,7 @@ import java.security.NoSuchAlgorithmException
 import java.util.*
 
 @Service
+@org.springframework.context.annotation.Profile("!test")
 class MinioService(
     @Value("\${minio.endpoint:http://localhost:9000}")
     private val endpoint: String,
@@ -24,7 +25,7 @@ class MinioService(
     
     @Value("\${minio.bucket-name:kanban-images}")
     private val bucketName: String
-) {
+) : MinioServiceInterface {
     
     private val minioClient: MinioClient by lazy {
         MinioClient.builder()
@@ -79,7 +80,7 @@ class MinioService(
         }
     }
 
-    fun uploadFile(file: MultipartFile, objectName: String): String {
+    override fun uploadFile(file: MultipartFile, objectName: String): String {
         return try {
             minioClient.putObject(
                 PutObjectArgs.builder()
@@ -95,7 +96,7 @@ class MinioService(
         }
     }
 
-    fun uploadFile(inputStream: InputStream, objectName: String, contentType: String, size: Long): String {
+    override fun uploadFile(inputStream: InputStream, objectName: String, contentType: String, size: Long): String {
         return try {
             minioClient.putObject(
                 PutObjectArgs.builder()
@@ -124,7 +125,7 @@ class MinioService(
         }
     }
 
-    fun deleteFile(objectName: String) {
+    override fun deleteFile(objectName: String): Boolean {
         try {
             minioClient.removeObject(
                 RemoveObjectArgs.builder()
@@ -132,6 +133,7 @@ class MinioService(
                     .`object`(objectName)
                     .build()
             )
+            true
         } catch (e: Exception) {
             throw RuntimeException("Failed to delete file: ${e.message}", e)
         }
@@ -148,7 +150,7 @@ class MinioService(
         }
     }
 
-    fun getFileUrl(objectName: String): String {
+    override fun getFileUrl(objectName: String): String {
         return try {
             minioClient.getPresignedObjectUrl(
                 GetPresignedObjectUrlArgs.builder()
@@ -166,5 +168,19 @@ class MinioService(
 
     fun getPublicUrl(objectName: String): String {
         return "$endpoint/$bucketName/$objectName"
+    }
+    
+    override fun fileExists(objectName: String): Boolean {
+        return try {
+            minioClient.statObject(
+                StatObjectArgs.builder()
+                    .bucket(bucketName)
+                    .`object`(objectName)
+                    .build()
+            )
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 }
